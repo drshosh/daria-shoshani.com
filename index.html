@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daria Shoshani — Artist</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="brand_assets/PAVICON.png" type="image/png" />
+</head>
+<body>
+
+  <!-- COUNTDOWN OVERLAY -->
+  <div id="countdown-overlay">
+    <img src="Images/Countdown.gif" alt="" />
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg" id="hero-click">
+      <img src="Images/gif-barbura.gif" alt="" />
+    </div>
+    <span class="hero-name">Daria Shoshani</span>
+  </section>
+  <div id="hero-spacer"></div>
+
+  <!-- HORIZONTAL NAV -->
+  <nav id="site-nav">
+    <span class="nav-brand">Daria Shoshani</span>
+    <a href="#works" class="nav-link">Works</a>
+    <div class="nav-dropdown-wrap" id="about-wrap">
+      <button class="nav-link nav-dropdown-btn" id="about-btn">About</button>
+      <div class="nav-dropdown" id="about-dropdown">
+        <a href="#about">Biography</a>
+        <a href="#cv">CV</a>
+        <a href="#downloads">Download CV &amp; Portfolio</a>
+      </div>
+    </div>
+    <a href="#contact" class="nav-link">Contact</a>
+    <div class="menu-section" id="draw-section">
+      <button class="nav-link" id="draw-toggle">Draw</button>
+      <div id="draw-panel" class="draw-panel">
+        <div class="draw-swatches">
+          <button class="swatch active" data-color="#151210" style="background:#151210" title="Lamp black"></button>
+          <button class="swatch" data-color="#241c14" style="background:#241c14" title="Warm black"></button>
+          <button class="swatch" data-color="#3c2c1c" style="background:#3c2c1c" title="Dark chocolate"></button>
+          <button class="swatch" data-color="#5c4030" style="background:#5c4030" title="Dark umber"></button>
+          <button class="swatch" data-color="#7c5838" style="background:#7c5838" title="Umber"></button>
+          <button class="swatch" data-color="#a07448" style="background:#a07448" title="Raw umber"></button>
+          <button class="swatch" data-color="#8a5620" style="background:#8a5620" title="Raw sienna dark"></button>
+          <button class="swatch" data-color="#b87c28" style="background:#b87c28" title="Gold ochre"></button>
+          <button class="swatch" data-color="#c49240" style="background:#c49240" title="Yellow ochre"></button>
+          <button class="swatch" data-color="#d4aa58" style="background:#d4aa58" title="Light ochre"></button>
+          <button class="swatch" data-color="#9c4c28" style="background:#9c4c28" title="Burnt sienna dark"></button>
+          <button class="swatch" data-color="#b86040" style="background:#b86040" title="Burnt sienna"></button>
+          <button class="swatch" data-color="#c87858" style="background:#c87858" title="Terracotta"></button>
+          <button class="swatch" data-color="#a86858" style="background:#a86858" title="Dusty terracotta"></button>
+          <button class="swatch" data-color="#8a5858" style="background:#8a5858" title="Muted rose-brown"></button>
+          <button class="swatch" data-color="#b08888" style="background:#b08888" title="Dusty rose"></button>
+          <button class="swatch" data-color="#c8a898" style="background:#c8a898" title="Pale blush"></button>
+          <button class="swatch" data-color="#e8ddd4" style="background:#e8ddd4" title="Warm white"></button>
+          <button class="swatch" data-color="#f5f0e8" style="background:#f5f0e8;outline:1px solid #ddd" title="Ivory"></button>
+          <button class="swatch" data-color="#2a3418" style="background:#2a3418" title="Dark olive"></button>
+          <button class="swatch" data-color="#3c4c20" style="background:#3c4c20" title="Olive dark"></button>
+          <button class="swatch" data-color="#526630" style="background:#526630" title="Olive"></button>
+          <button class="swatch" data-color="#6a8040" style="background:#6a8040" title="Yellow olive"></button>
+          <button class="swatch" data-color="#7c9050" style="background:#7c9050" title="Sage olive"></button>
+          <button class="swatch" data-color="#90a468" style="background:#90a468" title="Light sage"></button>
+          <button class="swatch" data-color="#2c4838" style="background:#2c4838" title="Hunter green"></button>
+          <button class="swatch" data-color="#3a6050" style="background:#3a6050" title="Dark muted teal"></button>
+          <button class="swatch" data-color="#4c7868" style="background:#4c7868" title="Dusty teal"></button>
+          <button class="swatch" data-color="#5c8878" style="background:#5c8878" title="Muted teal"></button>
+          <button class="swatch" data-color="#182838" style="background:#182838" title="Dark Prussian"></button>
+          <button class="swatch" data-color="#1e3850" style="background:#1e3850" title="Prussian blue"></button>
+          <button class="swatch" data-color="#2c4460" style="background:#2c4460" title="Dark slate blue"></button>
+          <button class="swatch" data-color="#3e5e7c" style="background:#3e5e7c" title="Slate blue"></button>
+          <button class="swatch" data-color="#587898" style="background:#587898" title="Steel blue"></button>
+          <button class="swatch" data-color="#6888a4" style="background:#6888a4" title="Dusty blue"></button>
+          <button class="swatch" data-color="#3a3050" style="background:#3a3050" title="Dark violet"></button>
+          <button class="swatch" data-color="#5a4868" style="background:#5a4868" title="Dusty purple"></button>
+          <button class="swatch" data-color="#7a6888" style="background:#7a6888" title="Muted mauve"></button>
+          <button class="swatch" data-color="#9a8898" style="background:#9a8898" title="Pale mauve"></button>
+          <button class="swatch" data-color="#7a7878" style="background:#7a7878" title="Warm grey"></button>
+        </div>
+        <div class="draw-size-row">
+          <span>Size</span>
+          <input type="range" id="draw-width" min="2" max="28" value="8" />
+        </div>
+        <button id="draw-clear" class="draw-clear-btn">Clear</button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main-content">
+
+      <!-- WORKS -->
+      <section id="works">
+        <div class="section-head">
+          <span class="label">Installation View</span>
+        </div>
+        <div class="works-grid">
+
+          <article class="work-card" data-images='["Images/works/Girls-Like-Us-Don&#39;t_cry/1.mov","Images/works/Girls-Like-Us-Don&#39;t_cry/2.png","Images/works/Girls-Like-Us-Don&#39;t_cry/3.png","Images/works/Girls-Like-Us-Don&#39;t_cry/4.png"]' data-bg='["Images/works/Girls-Like-Us-Don&#39;t_cry/background_1.mov","Images/works/Girls-Like-Us-Don&#39;t_cry/background_2.mov"]'>
+            <div class="work-foot">
+              <span class="work-num">01</span>
+              <h2 class="work-title">Girls Like Us Don't Cry</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/Girls-Like-Us-Don't_cry/2.png" class="work-cover" alt="Girls Like Us Don't Cry" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2025 &nbsp;—&nbsp; Waypoint, Barbur Gallery, Jerusalem</p>
+              <p class="work-medium">Fish tank, water, black goldfish, wood, metal, cement, polyurethane foam, silicone, textile, nylon wire</p>
+              <p class="work-text">The Caryatides are crying as they carry an aquarium. The work retells narratives of womanhood and power structures while the aquarium stands for microcosm, worldmaking, and screens — the architecture of oppression and that of memory.</p>
+            </div>
+          </article>
+
+          <article class="work-card" data-images='["Images/works/Add-Water-to-Water/1.png","Images/works/Add-Water-to-Water/2.jpg","Images/works/Add-Water-to-Water/3.jpg","Images/works/Add-Water-to-Water/4.jpg","Images/works/Add-Water-to-Water/5.jpg","Images/works/Add-Water-to-Water/6.mp4","Images/works/Add-Water-to-Water/7.jpg","Images/works/Add-Water-to-Water/8.jpg"]' data-bg='["Images/works/Add-Water-to-Water/background.mov"]'>
+            <div class="work-foot">
+              <span class="work-num">02</span>
+              <h2 class="work-title">Add Water to Water</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/Add-Water-to-Water/1.png" class="work-cover" alt="Add Water to Water" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2024 &nbsp;—&nbsp; Unstable Realities, MAXXI Museum, Rome</p>
+              <p class="work-medium">Video, 15 min · Cement, bricks, metal, screen, headphones</p>
+              <p class="work-text">A dreamer who doesn't sleep at night and builds aquariums at day creates himself a microcosmos at home so he will never have to leave again.</p>
+            </div>
+          </article>
+
+          <article class="work-card" data-images='["Images/works/To-Whom-It-May-concern/1.png","Images/works/To-Whom-It-May-concern/2.png","Images/works/To-Whom-It-May-concern/3.png","Images/works/To-Whom-It-May-concern/4.png","Images/works/To-Whom-It-May-concern/5.png","Images/works/To-Whom-It-May-concern/6.mov"]' data-bg='["Images/works/To-Whom-It-May-concern/background.mov"]'>
+            <div class="work-foot">
+              <span class="work-num">03</span>
+              <h2 class="work-title">To Whom It May Concern</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/To-Whom-It-May-concern/1.png" class="work-cover" alt="To Whom It May Concern" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2025 &nbsp;—&nbsp; Waypoint, Barbur Gallery, Jerusalem</p>
+              <p class="work-medium">Plaster, iron, paper, concrete, nylon wire, aluminium, textile, glass</p>
+              <p class="work-text">Virtuality and intimacy do meet, in the encounter between craft and pixels, touch and screens. The quilt exists in the space between flânerie and mapping, in feeling close while being far.</p>
+            </div>
+          </article>
+
+          <article class="work-card" data-images='["Images/works/Friction, Inscription, Engraving, Scraping, Carving, Rubbing/1.png","Images/works/Friction, Inscription, Engraving, Scraping, Carving, Rubbing/2.jpg","Images/works/Friction, Inscription, Engraving, Scraping, Carving, Rubbing/3.JPG","Images/works/Friction, Inscription, Engraving, Scraping, Carving, Rubbing/4.JPG"]' data-bg='["Images/works/Friction, Inscription, Engraving, Scraping, Carving, Rubbing/backgroud1.png","Images/works/Friction, Inscription, Engraving, Scraping, Carving, Rubbing/backgroud2.png","Images/works/Friction, Inscription, Engraving, Scraping, Carving, Rubbing/backgroud3.png"]'>
+            <div class="work-foot">
+              <span class="work-num">04</span>
+              <h2 class="work-title">Friction, Inscription, Engraving, Scraping, Carving, Rubbing</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/Friction, Inscription, Engraving, Scraping, Carving, Rubbing/1.png" class="work-cover" alt="Friction, Inscription, Engraving, Scraping, Carving, Rubbing" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2025 &nbsp;—&nbsp; Miksha, Fortress Gallery · With Nir Dellus</p>
+              <p class="work-medium">Plaster, 175 × 100 cm</p>
+              <p class="work-text">The work begins with frottage prints the two artists collected being far away from each other. As a way of maintaining touch, the prints encapsulate direct contact being transferred through pressure. Between preservation and transformation, it records what already exists while simultaneously abstracting it. The paper becomes a temporary skin — a thin membrane that carries the texture of another surface.<br><br>The imprints are then translated into digital files. As pixels, they travel across continents in milliseconds. They are processed into code and sent to a CNC machine, where the image regains physical depth through carving.<br><br>What begins as friction on the street returns as incision in plaster. White. Clean. Newly formed.</p>
+            </div>
+             </article>
+
+          <article class="work-card" data-images='["Images/works/1+1=11/1.png","Images/works/1+1=11/2.JPG","Images/works/1+1=11/3.JPG","Images/works/1+1=11/4.JPG","Images/works/1+1=11/5.png","Images/works/1+1=11/6.JPG","Images/works/1+1=11/7.JPG","Images/works/1+1=11/8.png","Images/works/1+1=11/9.JPG"]' data-bg='["Images/works/1+1=11/background1.png","Images/works/1+1=11/background2.png"]'>
+            <div class="work-foot">
+              <span class="work-num">07</span>
+              <h2 class="work-title">1 + 1 = 11</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/1+1=11/1.png" class="work-cover" alt="1 + 1 = 11" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2024 &nbsp;—&nbsp; Solo Exhibition, RUFA Space, Rome</p>
+              <p class="work-medium">Papier-mâché, charcoal on paper and textile</p>
+              <p class="work-text">A math exercise: You + me ≠ us. Embodying the paradoxical nature of togetherness — the urge to merge into a singular entity, from the prison of separateness into the prison of physical need for another.</p>
+            </div>
+          </article>
+
+          <article class="work-card" data-images='["Images/works/Future-Over-past-I-Will-Not-Turn-To-Salt-But-To-Sugar/1.png","Images/works/Future-Over-past-I-Will-Not-Turn-To-Salt-But-To-Sugar/2.png","Images/works/Future-Over-past-I-Will-Not-Turn-To-Salt-But-To-Sugar/3.jpg"]' data-bg='["Images/works/Future-Over-past-I-Will-Not-Turn-To-Salt-But-To-Sugar/background.png"]'>
+            <div class="work-foot">
+              <span class="work-num">08</span>
+              <h2 class="work-title">Future Over Past, I Will Not Turn to Salt But to Sugar</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/Future-Over-past-I-Will-Not-Turn-To-Salt-But-To-Sugar/1.png" class="work-cover" alt="Future Over Past" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2023 &nbsp;—&nbsp; Past, Pass, Future, Export Gallery</p>
+              <p class="work-medium">Woodcut print on tissue paper, sugar, Jerusalem stone</p>
+              <p class="work-text">The petrification of Lot's Wife, due to her inability to move on and not turn back, turns the salt pillar into a monument mirroring itself. A lesson for generations to come.<br><br>The work is a second metamorphosis in an attempt to sweeten the punishment of Lot's Wife, and accept the remains of memories as something that does not contradict the aspiration for a future. A gaze of forgiveness to the attachment to time and place, as well as the trauma that remains.</p>
+            </div>
+          </article>
+
+          <article class="work-card" data-images='["Images/works/Long-Time-No-See/1.png","Images/works/Long-Time-No-See/2.jpg","Images/works/Long-Time-No-See/3.jpg","Images/works/Long-Time-No-See/4.jpg","Images/works/Long-Time-No-See/5.png","Images/works/Long-Time-No-See/6.png","Images/works/Long-Time-No-See/7.jpg","Images/works/Long-Time-No-See/8.png","Images/works/Long-Time-No-See/9.jpg","Images/works/Long-Time-No-See/10.png","Images/works/Long-Time-No-See/11.png","Images/works/Long-Time-No-See/12.png","Images/works/Long-Time-No-See/13.jpg","Images/works/Long-Time-No-See/14.jpg"]' data-bg='["Images/works/Long-Time-No-See/background_.png"]'>
+            <div class="work-foot">
+              <span class="work-num">09</span>
+              <h2 class="work-title">Long Time No See</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/Long-Time-No-See/1.png" class="work-cover" alt="Long Time No See" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2025 — Artist Book · With <a href="https://www.lorenzkunath.xyz/" target="_blank" rel="noopener">Lorenz Kunath</a></p>
+              <p class="work-medium">Publication, <a href="https://vbtb.bigcartel.com/?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnBFcvEwaA0aQ4te1qabo2my7p2cUwcEbx6Z2xBg9Ev-fkmZvFPbX5oXYK-KU_aem_DEgBX4r-BrKxvdKVFfWpDA" target="_blank" rel="noopener">Vienna Printing Cooperative</a></p>
+              <p class="work-text">After being invited by <a href="https://vbtb.bigcartel.com/?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnBFcvEwaA0aQ4te1qabo2my7p2cUwcEbx6Z2xBg9Ev-fkmZvFPbX5oXYK-KU_aem_DEgBX4r-BrKxvdKVFfWpDA" target="_blank" rel="noopener">Vienna Printing Cooperative</a> to make an artist book, Daria Shoshani and <a href="https://www.lorenzkunath.xyz/" target="_blank" rel="noopener">Lorenz Kunath</a> — who met in 2019 in Jerusalem and hadn't seen each other since — began sending one image of an artwork per week via email. The perpetual exchange of works, words, and ideas created a visual form of communication that crossed distance and raised questions about archives and the transformation of materials into digital forms. The book <a href="https://vbtb.bigcartel.com/product/daria-shoshani-lorenz-kunath-long-time-no-see" target="_blank" rel="noopener"><em>Long Time No See</em></a> is available here.</p>
+            </div>
+          </article>
+
+          <article class="work-card" data-images='["Images/works/Cave-With-No-Name/1.jpeg","Images/works/Cave-With-No-Name/2.jpeg","Images/works/Cave-With-No-Name/3.jpg","Images/works/Cave-With-No-Name/4.png","Images/works/Cave-With-No-Name/5.png","Images/works/Cave-With-No-Name/6.JPG","Images/works/Cave-With-No-Name/7.jpeg","Images/works/Cave-With-No-Name/8.gif"]' data-bg='["Images/works/Cave-With-No-Name/background.png"]'>
+            <div class="work-foot">
+              <span class="work-num"></span>
+              <h2 class="work-title">The Cave With No Name</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/Cave-With-No-Name/1.jpeg" class="work-cover" alt="The Cave With No Name" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">Parco della Cafarella &nbsp;—&nbsp; With Giulio Gamba</p>
+              <p class="work-medium"></p>
+              <p class="work-text">A one-evening exhibition held in a cave in Parco della Cafarella, created with Giulio Gamba. The works are site-specific, shaped during months of frequent visits. The cave itself curated the media, size, and nature of the works — the meeting between terra and subterra, light and darkness, text and subtext.<br><br>Being a narrow cave, eyes and footsteps are fundamentally co-dependent. The spectator must trespass a linear path; the order in which works are revealed — and hidden under darkness — is crucial. Visitors entered in couples, equipped with a candle, a flashlight, and a map.</p>
+            </div>
+          </article>
+
+        </div><!-- end works-grid -->
+
+        <div class="collection-head">
+          <span class="label">Selected Works</span>
+        </div>
+        <div class="works-grid">
+
+          <article class="work-card" data-bg='["white"]' data-images='["Images/works/paintings and drawings/1.png","Images/works/paintings and drawings/2.jpeg","Images/works/paintings and drawings/3.jpeg","Images/works/paintings and drawings/4.png","Images/works/paintings and drawings/6.jpg","Images/works/paintings and drawings/7.png","Images/works/paintings and drawings/8.png","Images/works/paintings and drawings/9.png","Images/works/paintings and drawings/10.jpg","Images/works/paintings and drawings/11.png","Images/works/paintings and drawings/12.jpeg","Images/works/paintings and drawings/13.jpg","Images/works/paintings and drawings/14.png","Images/works/paintings and drawings/15.png","Images/works/paintings and drawings/16.jpg","Images/works/paintings and drawings/17.jpeg","Images/works/paintings and drawings/18.jpg","Images/works/paintings and drawings/19.jpg","Images/works/paintings and drawings/20.png","Images/works/paintings and drawings/21.jpg.png","Images/works/paintings and drawings/22.png","Images/works/paintings and drawings/23.png","Images/works/paintings and drawings/24.jpg"]'>
+            <div class="work-foot">
+              <span class="work-num"></span>
+              <h2 class="work-title">Paintings and Drawings</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/paintings and drawings/1.png" class="work-cover" alt="Paintings and Drawings" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2022–2026</p>
+              <p class="work-medium"></p>
+              <p class="work-text"></p>
+            </div>
+          </article>
+
+          <article class="work-card" data-bg='["white"]' data-images='["Images/works/sculptures/1.JPG","Images/works/sculptures/2.JPG","Images/works/sculptures/3.JPG","Images/works/sculptures/4.JPG","Images/works/sculptures/5.JPG","Images/works/sculptures/6.JPG","Images/works/sculptures/7.JPG","Images/works/sculptures/8.png","Images/works/sculptures/9.jpg","Images/works/sculptures/12.JPG","Images/works/sculptures/1+1=11.gif"]'>
+            <div class="work-foot">
+              <span class="work-num"></span>
+              <h2 class="work-title">Sculptures</h2>
+            </div>
+            <div class="work-img-wrap">
+              <img src="Images/works/sculptures/1.JPG" class="work-cover" alt="Sculptures" />
+            </div>
+            <div class="work-overlay">
+              <p class="work-sub">2022–2026</p>
+              <p class="work-medium"></p>
+              <p class="work-text"></p>
+            </div>
+          </article>
+
+        </div><!-- end selected works grid -->
+
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about">
+        <div class="section-head">
+          <span class="label">About</span>
+        </div>
+        <div class="about-layout">
+          <div class="about-left">
+            <figure class="about-photo">
+              <img src="Images/about%20/about_image.png" alt="" />
+            </figure>
+          </div>
+          <div class="about-right">
+            <p>Daria Shoshani (b.1998) lives in Vienna. Her practice includes mainly sculpture, painting, drawing and video. Her works are a confessional research of how immaterial aspects such as ephemerality, heritage, politics and location interact with the material figure. The interaction is retelling narratives by intertwining the mundane with the oneiric. The works recruit a childish, intuitive and dynamic visual language, often contrasting form and substance.</p>
+            <p>She has participated in various exhibitions in recent years e.g MAXXI museum (2024), Fondazione Pastificio Cerere (2024), Wasserwasser Vienna (2025), and Barbur Gallery (2025). Her duo artist book done with the painter Lorenz Kunath <em>Long Time No See</em> was published with Vienna Printing Cooperative (2025), other works were published with Granata, Portfolio magazine, Dito Publishing. She did her BA in the Hebrew University of Jerusalem in the department of general and comparative literature (2023), and graduated her MFA with excellence in the department of sculpture and installation in Rome University of Fine Arts (2025) where her thesis work <em>The Space Between Zeros and Ones</em> received an excellent honorarium.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CV -->
+      <section id="cv">
+        <div class="section-head">
+          <span class="label">Curriculum Vitae</span>
+        </div>
+        <div class="cv-layout">
+
+          <div class="cv-col">
+            <h3 class="cv-category">Education and Experience</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year">2025–26</span><div>Internship in the studio of <a href="https://gelitin.net" target="_blank" rel="noopener">Gelatin/Gelitin</a>. Vienna, Austria.</div></li>
+              <li><span class="cv-year">2024</span><div>Internship in the stone workshop of <a href="https://www.martescultura.com/" target="_blank" rel="noopener">M'artescultura</a>. Zagarollo, Italy.</div></li>
+              <li><span class="cv-year">2022–2024</span><div>MA with excellence in Fine Arts — Sculpture and Installation from Rome University of Fine Arts.</div></li>
+              <li><span class="cv-year">2020–2023</span><div>Founder and artistic director of <a href="https://timeout.co.il/%D7%A1%D7%99%D7%A0%D7%A7%D7%9C%D7%90%D7%91-%D7%A8%D7%A7%D7%A1/" target="_blank" rel="noopener">Cinema Rex</a>, an independent cinema in Jerusalem.</div></li>
+              <li><span class="cv-year">2021</span><div>Assistant in the studio of <a href="https://www.orenfischer.com/" target="_blank" rel="noopener">Oren Fischer</a>.</div></li>
+              <li><span class="cv-year">2020</span><div>Studio and teacher assistant in mosaic courses held Annan Ednan.</div></li>
+              <li><span class="cv-year">2019–2023</span><div>Studio member in <a href="https://www.instagram.com/studio_straus/?hl=en" target="_blank" rel="noopener">Studio Strauss</a> Collective.</div></li>
+              <li><span class="cv-year">2017–2021</span><div>BA with excellence in General and Comparative Literature from the Hebrew University of Jerusalem.</div></li>
+            </ul>
+
+            <h3 class="cv-category">Solo and Duo Exhibitions</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year">2025</span><div><em>Long Time No See</em>. With <a href="https://www.lorenzkunath.xyz/" target="_blank" rel="noopener">Lorenz Kunath</a>. Wasserwasser. Vienna.</div></li>
+              <li><span class="cv-year">2025</span><div><em>Long Time No See</em>. With <a href="https://www.lorenzkunath.xyz/" target="_blank" rel="noopener">Lorenz Kunath</a>. Studio archivio fratelli M. Rome.</div></li>
+              <li><span class="cv-year">2024</span><div><a href="https://zero.eu/it/eventi/321255-daria-shoshani-1111,roma/" target="_blank" rel="noopener"><em>1+1=11</em></a>. Rufa Space, in collaboration with Comitato Fondazioni Arte Contemporanea, <a href="https://fondazionememmo.it" target="_blank" rel="noopener">Fondazione Memmo</a> and <a href="https://www.pastificiocerere.it" target="_blank" rel="noopener">Fondazione Pastificio Cerere</a>, Rome.</div></li>
+              <li><span class="cv-year">2023</span><div><em>Borne From Egg</em>. With <a href="https://www.alexandrafongaro.com/" target="_blank" rel="noopener">Alexandra Fongaro</a>, Teatro Sala Umberto, in collaboration with <a href="https://www.suarte.it/" target="_blank" rel="noopener">Su Arte</a>, Rome.</div></li>
+              <li><span class="cv-year">2023</span><div><em>Nameless Cave</em>. With Giulio Gamba. Caffarella Park, Rome.</div></li>
+            </ul>
+
+            <h3 class="cv-category">Collections</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year"></span><div>Mareva and Arthur Essebag collection, Acer Roma, and private collections.</div></li>
+            </ul>
+
+            <h3 class="cv-category">Residencies</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year">2019</span><div>Artbnb residency program. <a href="https://www.muslala.org" target="_blank" rel="noopener">Muslala Project</a>, Jerusalem.</div></li>
+            </ul>
+
+            <h3 class="cv-category">Scenography</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year">2024</span><div>Art director in short movie <em>Birdboy</em> directed by Marco Galleazi.</div></li>
+              <li><span class="cv-year">2023</span><div>Art director in short movie <em>Digital Diary</em> directed by Yasmin Scheft.</div></li>
+              <li><span class="cv-year">2021</span><div>Director and art director in Video clip <em>The North Star</em> for Shen.<br/>Art director in Video clip <em>Yesh Hamon</em> directed by Tamir Fainegold for musician Ziv Barashi.<br/>Costume Designer, short film <em>A Silent Movie</em> directed by Naama Shmueli.</div></li>
+              <li><span class="cv-year">2020</span><div>Director and art director in short movie <em>ZOOM</em> done with Tal Elkayam.<br/>Art director in web series <em>The Whole World is a Bed</em> directed by Roee Mashiah.<br/>Art director in Video clip <em>A Vase</em> directed by Tamir Fainegold for music duo "Kashaiof".<br/>Art director in short film <em>Brightening Hour</em> directed by filmmaker Shiri Kuban.</div></li>
+              <li><span class="cv-year">2019</span><div>Art director in music video <em>Hold</em> for Red-Axes with SIIDS Duo, <a href="https://www.amospeled.net/" target="_blank" rel="noopener">Amos Peled</a> and Nevo Revivo.<br/>Stage Designer, Israel Museum: Israel Festival: annual Jazz Festival — show by "Red Axes", live drawing session directed by Eden Kalif.<br/>Stage-designer, three days of live shows hosted by Kapitan in Teder, Tel-Aviv.<br/>Stage Designer in Shen's live show in Teder, Tel-Aviv.</div></li>
+            </ul>
+          </div>
+
+          <div class="cv-col">
+            <h3 class="cv-category">Group Exhibitions</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year">2026</span><div><a href="https://www.prtfl.co.il/archives/230407" target="_blank" rel="noopener"><em>Miksha</em></a>. Fortress Gallery, Tel-Aviv.</div></li>
+              <li><span class="cv-year">2025</span><div><em>Women, Work, and Sustainability</em>. <a href="https://breadandroses.org.il/" target="_blank" rel="noopener">Bread and Roses Gallery</a>, Tel Aviv.</div></li>
+              <li><span class="cv-year">2025</span><div><em>Roma</em>. Acer Roma and Ance Giovanni, Rome.</div></li>
+              <li><span class="cv-year">2024</span><div><em>Waypoint</em>. Barbur Gallery, Jerusalem.</div></li>
+              <li><span class="cv-year">2024</span><div><a href="https://romeartweek.com/en/events/?code=FBGEMY" target="_blank" rel="noopener"><em>Acqua: di vita - di conflitto</em></a>. Fondazione Magis, Rome.</div></li>
+              <li><span class="cv-year">2024</span><div><em>Unstable Realities</em>. <a href="https://www.maxxi.art" target="_blank" rel="noopener">Maxxi Museum of Contemporary art</a>, Rome.</div></li>
+              <li><span class="cv-year">2023</span><div><em>Cosa è Arte</em>. <a href="https://www.pastificiocerere.it" target="_blank" rel="noopener">Fondazione Pastificio Cerere</a>, Rome.</div></li>
+              <li><span class="cv-year">2023</span><div><a href="https://www.haaretz.co.il/gallery/art/artreview/2023-11-30/ty-article-magazine/.highlight/0000018c-1b48-dd4b-a38c-1f5ec4e40000" target="_blank" rel="noopener"><em>Elem</em></a>. Jaffa Well House, Jaffa.</div></li>
+              <li><span class="cv-year">2023</span><div><em>Il Timore Delle Bestie</em>. Passamonti gallery, Rome.</div></li>
+              <li><span class="cv-year">2023</span><div><em>Past, Pass, Future</em>. Export gallery, Jerusalem.</div></li>
+              <li><span class="cv-year">2022</span><div><em>Vedrò come luccica il buio</em>. Casa Cent'anni, Rome.</div></li>
+              <li><span class="cv-year">2022</span><div><em>Export 001</em>. Export, Tel-Aviv.</div></li>
+            </ul>
+
+            <h3 class="cv-category">Screenings and Performances</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year">2026</span><div><em>Add Water to Water</em> in Smadar Festival, Jerusalem.</div></li>
+              <li><span class="cv-year">2025</span><div><em>Night of the Dead</em> in <a href="https://www.taufilmfest.com/?lang=en" target="_blank" rel="noopener">Tel Aviv International Film Festival</a>.<br/><em>Night of the Dead</em> in the Jerusalem Arts Festival.</div></li>
+              <li><span class="cv-year">2024</span><div><em>Night of the Dead</em> in Eretz Israel Museum, Tel-Aviv.<br/><em>Add Water to Water</em> in "Bolla Blu" screening. In collaboration with Spazio Y, Rome.<br/><em>Night of the Dead</em> in the <a href="https://shaon-horef.co.il/" target="_blank" rel="noopener">Shaon Horef festival</a>, Jerusalem.<br/><em>Night of the Dead</em> in <a href="https://shablulimfilm.com/" target="_blank" rel="noopener">Cinema Shablulim festival</a>, Jerusalem.<br/><em>Disjointed</em> performed in the performance cluster festival <em>Beyond The Pale</em>. Rufa Space.</div></li>
+            </ul>
+
+            <h3 class="cv-category">Awards</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year">2025</span><div>Erasmus plus grant of a year long internship for graduates.</div></li>
+              <li><span class="cv-year">2024</span><div>Best experimental film award to <em>Add Water to Water</em>, Cinema Kanada.<br/>Experimentation in technique award for <em>Add Water to Water</em> by IUVART's "Cosa è Arte" competition in collaboration with Loveitaly and Art Centrica.</div></li>
+            </ul>
+
+            <h3 class="cv-category">Publications</h3>
+            <ul class="cv-list">
+              <li><span class="cv-year">2025</span><div><a href="https://vbtb.bigcartel.com/product/daria-shoshani-lorenz-kunath-long-time-no-see" target="_blank" rel="noopener"><em>Long Time No See</em></a> duo artist book with <a href="https://www.lorenzkunath.xyz/" target="_blank" rel="noopener">Lorenz Kunath</a>, published by <a href="https://vbtb.bigcartel.com/?utm_source=ig&utm_medium=social&utm_content=link_in_bio&fbclid=PAZXh0bgNhZW0CMTEAc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAGnBFcvEwaA0aQ4te1qabo2my7p2cUwcEbx6Z2xBg9Ev-fkmZvFPbX5oXYK-KU_aem_DEgBX4r-BrKxvdKVFfWpDA" target="_blank" rel="noopener">Vienna Printing Cooperative</a>.</div></li>
+              <li><span class="cv-year">2024</span><div><a href="https://www.grantahebrew.com/%D7%90%D7%A8%D7%A5-%D7%A2%D7%99%D7%A8/" target="_blank" rel="noopener"><em>Waypoint</em></a> in Granata Magazine.<br/><a href="https://israeliart.co.il/%D7%90%D7%93%D7%95%D7%A0%D7%99%D7%A1-%D7%91%D7%A0%D7%95%D7%91%D7%94" target="_blank" rel="noopener"><em>Adonis in Nova</em></a> in the Institute for Israeli Art.</div></li>
+              <li><span class="cv-year">2023</span><div><a href="https://ditopublishing.com/prodotto/moon/" target="_blank" rel="noopener"><em>MOON</em></a>, collective artist book by Dito Publishing.<br/><em>Broadcast</em>, <a href="https://www.instagram.com/spasmmagazine/" target="_blank" rel="noopener">Spasm magazine</a> 1st edition.<br/><a href="https://ditopublishing.com/prodotto/food/" target="_blank" rel="noopener"><em>FOOD</em></a>, collective artist book by Dito Publishing.</div></li>
+              <li><span class="cv-year">2022</span><div><a href="https://timeout.co.il/%D7%9E%D7%92%D7%96%D7%99%D7%9F-%D7%91%D7%99%D7%93/" target="_blank" rel="noopener"><em>Bayad</em></a> magazine 10th edition.</div></li>
+              <li><span class="cv-year">2021</span><div><em>Mamzer</em> magazine 1st edition.</div></li>
+              <li><span class="cv-year">2020</span><div><a href="https://www.grantahebrew.com/%d7%9c%d7%96%d7%95%d7%a8%d7%96-%d7%a4%d7%a8%d7%a7/" target="_blank" rel="noopener"><em>To Georges Perec</em></a> in Granata Magazine.</div></li>
+            </ul>
+
+          </div>
+
+        </div>
+
+        <div class="cv-download" id="downloads">
+          <a href="brand_assets/CV_Daria_Shoshani_2026FEB.pdf" target="_blank">Download CV (PDF) →</a>
+          <a href="brand_assets/portfolio.daria.shoshani.2026.pdf" target="_blank">Download Portfolio (PDF) →</a>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact">
+        <div class="contact-info">
+          <span class="contact-label">Contact</span>
+          <a href="mailto:daria.l.sh@gmail.com" class="contact-email">daria.l.sh@gmail.com</a>
+          <a href="https://www.instagram.com/daria.sho/" target="_blank" rel="noopener" class="contact-instagram">@daria.sho</a>
+        </div>
+        <div class="contact-image-wrap">
+          <img src="Images/contact/stay in touch%20.png" alt="Stay in touch" />
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer>
+        <img src="Images/logo.jpg" alt="" class="footer-logo" />
+        <span>© 2026 Daria Shoshani</span>
+      </footer>
+
+  </main>
+
+  <svg id="draw-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox">
+    <div id="lb-bg"></div>
+    <button id="lb-close">&#215;</button>
+    <button id="lb-prev">&#8592;</button>
+    <button id="lb-next">&#8594;</button>
+    <div id="lb-media"></div>
+    <span id="lb-counter"></span>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
