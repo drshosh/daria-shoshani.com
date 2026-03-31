@@ -788,12 +788,15 @@ body.draw-mode #site-nav { z-index: 700; }
   display: flex;
   flex: 1;
   min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
 }
+.draw-swatches::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
 .swatch {
-  flex: 1;
-  min-width: 0;
+  flex: none;
   height: 100%;
+  aspect-ratio: 1;
   border: none;
   border-radius: 0;
   cursor: pointer;
