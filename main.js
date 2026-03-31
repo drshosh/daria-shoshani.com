@@ -179,10 +179,29 @@
     '&screenshot=true&meta=false&embed=screenshot.url' +
     '&colorScheme=light&viewport.width=1280&viewport.height=800';
 
-  document.querySelectorAll('#cv a[href]:not([href="#"]), .contact-email, .contact-instagram')
-    .forEach(link => {
+  const previewLinks = Array.from(
+    document.querySelectorAll('#cv a[href]:not([href="#"]), .contact-email, .contact-instagram')
+  ).filter(link => {
+    const raw = link.getAttribute('href');
+    return raw && !raw.startsWith('#') && !raw.startsWith('mailto');
+  });
+
+  // Prefetch all screenshots after load so hover shows instantly
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      previewLinks.forEach(link => {
+        const raw = link.getAttribute('href');
+        if (cache.has(raw)) return;
+        const url = screenshotOf(raw);
+        cache.set(raw, url);
+        const img = new Image();
+        img.src = url;
+      });
+    }, 3000); // wait 3s so critical assets load first
+  });
+
+  previewLinks.forEach(link => {
       const raw = link.getAttribute('href');
-      if (!raw || raw.startsWith('#') || raw.startsWith('mailto')) return;
 
       link.addEventListener('mouseenter', () => {
         if (!cache.has(raw)) cache.set(raw, screenshotOf(raw));
