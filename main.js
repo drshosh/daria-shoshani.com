@@ -132,6 +132,39 @@
     lastPt = { x: null, y: null };
   });
 
+  // --- TOUCH DRAWING (mobile) ---
+  const drawLine = (x1, y1, x2, y2) => {
+    const line = document.createElementNS(svgNS, 'line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', drawColor);
+    line.setAttribute('stroke-width', drawWidth);
+    line.setAttribute('stroke-linecap', 'round');
+    line.setAttribute('stroke-linejoin', 'round');
+    drawSvg.appendChild(line);
+  };
+
+  drawSvg.addEventListener('touchstart', (e) => {
+    if (!drawMode) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    drawing = true;
+    lastPt = { x: t.clientX, y: t.clientY };
+  }, { passive: false });
+
+  drawSvg.addEventListener('touchmove', (e) => {
+    if (!drawMode || !drawing || lastPt.x === null) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    drawLine(lastPt.x, lastPt.y, t.clientX, t.clientY);
+    lastPt = { x: t.clientX, y: t.clientY };
+  }, { passive: false });
+
+  drawSvg.addEventListener('touchend', () => {
+    drawing = false;
+    lastPt = { x: null, y: null };
+  });
+
   // --- HOVER LINK PREVIEW ---
   const preview = document.createElement('div');
   preview.id = 'link-preview';
@@ -178,8 +211,12 @@
     // Fade hero-name (white, fixed) into nav-brand (dark, sticky) as hero exits
     const heroBottom = heroEl ? heroEl.getBoundingClientRect().bottom : 0;
     if (heroNameEl) {
-      const opacity = Math.max(0, Math.min(1, heroBottom / FADE_PX));
-      heroNameEl.style.opacity = opacity;
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        heroNameEl.style.opacity = 1;
+      } else {
+        const opacity = Math.max(0, Math.min(1, heroBottom / FADE_PX));
+        heroNameEl.style.opacity = opacity;
+      }
     }
   };
   window.addEventListener('scroll', updateNavColor, { passive: true });
@@ -329,5 +366,54 @@
       } catch(err) {}
     });
   });
+
+  // --- LIGHTBOX SWIPE (mobile) ---
+  let lbTouchStartX = 0;
+  lightbox.addEventListener('touchstart', e => {
+    lbTouchStartX = e.touches[0].clientX;
+  }, { passive: true });
+
+  lightbox.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - lbTouchStartX;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0) {
+        lbIndex = (lbIndex + 1) % lbImages.length;
+      } else {
+        lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length;
+      }
+      renderLb();
+    }
+  }, { passive: true });
+
+  // --- MOBILE HAMBURGER MENU ---
+  const hamburger   = document.getElementById('nav-hamburger');
+  const mobileMenu  = document.getElementById('mobile-menu');
+  const mobileClose = document.getElementById('mobile-menu-close');
+
+  if (hamburger && mobileMenu) {
+    const openMenu = () => {
+      mobileMenu.classList.add('open');
+      mobileMenu.setAttribute('aria-hidden', 'false');
+    };
+    const closeMenu = () => {
+      mobileMenu.classList.remove('open');
+      mobileMenu.setAttribute('aria-hidden', 'true');
+    };
+
+    hamburger.addEventListener('click', openMenu);
+    mobileClose.addEventListener('click', closeMenu);
+
+    mobileMenu.querySelectorAll('.mobile-nav-link, .mobile-nav-sublink').forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    const mobileDrawTrigger = document.getElementById('mobile-draw-trigger');
+    if (mobileDrawTrigger) {
+      mobileDrawTrigger.addEventListener('click', () => {
+        closeMenu();
+        if (!drawMode) drawToggle.click();
+      });
+    }
+  }
 
 })();

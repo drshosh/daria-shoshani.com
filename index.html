@@ -26,6 +26,9 @@
   <!-- HORIZONTAL NAV -->
   <nav id="site-nav">
     <span class="nav-brand">Daria Shoshani</span>
+    <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
     <a href="#works" class="nav-link">Works</a>
     <div class="nav-dropdown-wrap" id="about-wrap">
       <button class="nav-link nav-dropdown-btn" id="about-btn">About</button>
@@ -89,6 +92,17 @@
       </div>
     </div>
   </nav>
+
+  <!-- MOBILE MENU -->
+  <div id="mobile-menu" class="mobile-menu" aria-hidden="true">
+    <button id="mobile-menu-close" class="mobile-menu-close" aria-label="Close menu">&#x2715;</button>
+    <nav class="mobile-nav-links">
+      <a href="#works" class="mobile-nav-link">Works</a>
+      <a href="#about" class="mobile-nav-link">About</a>
+      <a href="#contact" class="mobile-nav-link">Contact</a>
+      <button class="mobile-nav-link" id="mobile-draw-trigger">Draw</button>
+    </nav>
+  </div>
 
   <main id="main-content">
 
