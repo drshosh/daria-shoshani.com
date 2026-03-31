@@ -289,35 +289,82 @@
 
   const isVideo = src => /\.(mp4|mov|webm|ogg)$/i.test(src);
 
-  const renderLb = () => {
-    lbMedia.innerHTML = '';
-    const src = lbImages[lbIndex];
+  // Cache of preloaded media elements — images via HTTP cache, videos kept alive as elements
+  const mediaCache = new Map();
+
+  const preloadMedia = (src) => {
+    if (mediaCache.has(src)) return;
     if (isVideo(src)) {
       const v = document.createElement('video');
-      v.src = src; v.controls = true; v.autoplay = true;
+      v.src = src; v.preload = 'auto';
+      mediaCache.set(src, v);
+    } else {
+      const img = new Image();
+      img.src = src;
+      mediaCache.set(src, img);
+    }
+  };
+
+  const renderLb = () => {
+    // Detach existing video without destroying it (preserves buffer)
+    const existingVideo = lbMedia.querySelector('video');
+    if (existingVideo) lbMedia.removeChild(existingVideo);
+    else lbMedia.innerHTML = '';
+
+    const src = lbImages[lbIndex];
+    if (isVideo(src)) {
+      const v = mediaCache.get(src) || document.createElement('video');
+      if (!mediaCache.has(src)) { v.src = src; mediaCache.set(src, v); }
+      v.controls = true; v.autoplay = true;
       lbMedia.appendChild(v);
+      v.play().catch(() => {});
     } else {
       const img = document.createElement('img');
-      img.src = src;
+      img.src = src; // hits HTTP cache if preloaded
       lbMedia.appendChild(img);
     }
     lbCounter.textContent = lbImages.length > 1 ? (lbIndex + 1) + ' / ' + lbImages.length : '';
     lbPrev.style.visibility = lbImages.length > 1 ? 'visible' : 'hidden';
     lbNext.style.visibility = lbImages.length > 1 ? 'visible' : 'hidden';
+
+    // Preload prev and next items so navigation feels instant
+    [-1, 1].forEach(offset => {
+      const ni = (lbIndex + offset + lbImages.length) % lbImages.length;
+      if (ni !== lbIndex) preloadMedia(lbImages[ni]);
+    });
   };
 
   const lbBg = document.getElementById('lb-bg');
 
+  // Cache of preloaded background video elements keyed by src
+  const bgVideoCache = new Map();
+
+  const preloadBgVideo = (src) => {
+    if (bgVideoCache.has(src)) return;
+    if (/\.(mp4|mov|webm)$/i.test(src)) {
+      const v = document.createElement('video');
+      v.src = src; v.preload = 'auto'; v.muted = true; v.loop = true; v.playsinline = true;
+      bgVideoCache.set(src, v);
+    }
+  };
+
   const setLbBg = (bgList) => {
-    lbBg.innerHTML = '';
+    // Detach any existing video back to cache instead of destroying it
+    const existing = lbBg.querySelector('video');
+    if (existing) lbBg.removeChild(existing);
     lbBg.style.backgroundImage = '';
     lbBg.style.backgroundColor = '';
     if (!bgList || !bgList.length) return;
     const src = bgList[Math.floor(Math.random() * bgList.length)];
     if (/\.(mp4|mov|webm)$/i.test(src)) {
-      const v = document.createElement('video');
-      v.src = src; v.autoplay = true; v.loop = true; v.muted = true; v.playsinline = true;
+      // Use preloaded element if available, otherwise create fresh
+      const v = bgVideoCache.get(src) || document.createElement('video');
+      if (!bgVideoCache.has(src)) {
+        v.src = src; v.muted = true; v.loop = true; v.playsinline = true;
+      }
+      v.autoplay = true;
       lbBg.appendChild(v);
+      v.play().catch(() => {});
     } else if (!/\./.test(src)) {
       lbBg.style.backgroundColor = src;
     } else {
@@ -336,8 +383,15 @@
 
   const closeLb = () => {
     lightbox.classList.remove('open', 'light-bg');
-    lbMedia.innerHTML = '';
-    if (lbBg) { lbBg.innerHTML = ''; lbBg.style.backgroundImage = ''; lbBg.style.backgroundColor = ''; }
+    // Detach without destroying so cached videos keep their buffer
+    const mediaVideo = lbMedia.querySelector('video');
+    if (mediaVideo) lbMedia.removeChild(mediaVideo);
+    else lbMedia.innerHTML = '';
+    if (lbBg) {
+      const bgVideo = lbBg.querySelector('video');
+      if (bgVideo) lbBg.removeChild(bgVideo);
+      lbBg.style.backgroundImage = ''; lbBg.style.backgroundColor = '';
+    }
   };
 
   lbClose.addEventListener('click', closeLb);
@@ -353,6 +407,15 @@
   });
 
   document.querySelectorAll('.work-card[data-images]').forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      try {
+        const bgList = card.dataset.bg ? JSON.parse(card.dataset.bg) : [];
+        bgList.forEach(src => preloadBgVideo(src));
+        const images = JSON.parse(card.dataset.images);
+        if (images.length) preloadMedia(images[0]);
+      } catch(e) {}
+    }, { once: true });
+
     card.querySelector('.work-img-wrap').addEventListener('click', () => {
       try {
         const images = JSON.parse(card.dataset.images);
