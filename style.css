@@ -1028,6 +1028,7 @@ button.mobile-nav-link {
   body.draw-mode #draw-section  { display: flex; }
   body.draw-mode .draw-panel    { height: 4rem; }
   body.draw-mode .swatch        { min-width: 2.4rem; }
+  .swatch:nth-child(n+13)       { display: none; }
 
   /* ── HERO NAME ── */
   .hero-name {
