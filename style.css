@@ -786,7 +786,7 @@ body.draw-mode #site-nav { z-index: 700; }
 
 .draw-swatches {
   display: flex;
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none; /* Firefox */
