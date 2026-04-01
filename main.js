@@ -362,7 +362,7 @@
     if (bgVideoCache.has(src)) return;
     if (/\.(mp4|mov|webm)$/i.test(src)) {
       const v = document.createElement('video');
-      v.src = src; v.preload = 'auto'; v.muted = true; v.loop = true; v.playsinline = true;
+      v.src = src; v.preload = 'metadata'; v.muted = true; v.loop = true; v.playsinline = true;
       bgVideoCache.set(src, v);
     }
   };
