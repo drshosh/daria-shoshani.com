@@ -362,7 +362,9 @@
     if (bgVideoCache.has(src)) return;
     if (/\.(mp4|mov|webm)$/i.test(src)) {
       const v = document.createElement('video');
-      v.src = src; v.preload = 'metadata'; v.muted = true; v.loop = true; v.playsinline = true;
+      v.src = src; v.preload = 'metadata'; v.muted = true; v.loop = true;
+      v.controls = false; v.disablePictureInPicture = true;
+      v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
       bgVideoCache.set(src, v);
     }
   };
@@ -379,7 +381,9 @@
       // Use preloaded element if available, otherwise create fresh
       const v = bgVideoCache.get(src) || document.createElement('video');
       if (!bgVideoCache.has(src)) {
-        v.src = src; v.muted = true; v.loop = true; v.playsinline = true;
+        v.src = src; v.muted = true; v.loop = true;
+        v.controls = false; v.disablePictureInPicture = true;
+        v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
       }
       v.autoplay = true;
       lbBg.appendChild(v);
