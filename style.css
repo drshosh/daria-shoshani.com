@@ -444,7 +444,7 @@ section {
   height: 320px;
   max-width: 90vw;
   max-height: 90vw;
-  object-fit: contain;
+  object-fit: cover;
   background: #fff;
 }
 
