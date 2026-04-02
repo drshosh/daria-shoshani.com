@@ -1187,23 +1187,30 @@ button.mobile-nav-link {
   }
 
   .cv-layout {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1.5rem;
     padding-right: 0;
   }
 
+  .cv-category { font-size: 1rem; margin-top: 2.5rem; margin-bottom: 1.5rem; }
+  .cv-col .cv-category:first-child { margin-top: 0; }
+
   .cv-list li {
-    grid-template-columns: 4.5rem 1fr;
-    gap: 1rem;
-    padding: 1.2rem 0;
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0.5rem;
+    padding: 0.8rem 0;
   }
 
+  .cv-year { font-size: 1rem; }
+  .cv-list li div { font-size: 1.1rem; }
+
   .cv-download {
+    grid-column: 1 / -1;
     flex-direction: column;
     gap: 1.5rem;
-    margin-top: 3rem;
-    padding-top: 3rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
   }
 
   /* ── CONTACT ── */
