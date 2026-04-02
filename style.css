@@ -440,12 +440,10 @@ section {
 #countdown-overlay.hidden { display: none; }
 #countdown-overlay video {
   display: block;
-  width: 320px;
-  height: 320px;
   max-width: 90vw;
-  max-height: 90vw;
-  object-fit: cover;
-  background: #fff;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
 }
 
 /* --- LIGHTBOX --- */
