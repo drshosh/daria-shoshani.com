@@ -438,7 +438,7 @@ section {
   justify-content: center;
 }
 #countdown-overlay.hidden { display: none; }
-#countdown-overlay img {
+#countdown-overlay video {
   width: 320px;
   height: auto;
 }

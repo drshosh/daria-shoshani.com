@@ -280,18 +280,29 @@
   });
 
   // --- COUNTDOWN OVERLAY ---
+  // --- COUNTDOWN OVERLAY ---
+  // Hide only after the video finishes AND the page is fully loaded — never cut it short.
   const countdownOverlay = document.getElementById('countdown-overlay');
   if (countdownOverlay) {
-    const startTime = Date.now();
-    const hideCountdown = () => {
-      const elapsed = Date.now() - startTime;
-      const wait = Math.max(0, 3500 - elapsed);
-      setTimeout(() => countdownOverlay.classList.add('hidden'), wait);
+    const countdownVideo = document.getElementById('countdown-video');
+    let videoEnded  = false;
+    let pageLoaded  = false;
+
+    const tryHide = () => {
+      if (videoEnded && pageLoaded) countdownOverlay.classList.add('hidden');
     };
-    if (document.readyState === 'complete') {
-      hideCountdown();
+
+    if (countdownVideo) {
+      countdownVideo.addEventListener('ended',  () => { videoEnded = true;  tryHide(); });
+      countdownVideo.addEventListener('error',  () => { videoEnded = true;  tryHide(); }); // fallback
     } else {
-      window.addEventListener('load', hideCountdown);
+      videoEnded = true;
+    }
+
+    if (document.readyState === 'complete') {
+      pageLoaded = true; tryHide();
+    } else {
+      window.addEventListener('load', () => { pageLoaded = true; tryHide(); });
     }
   }
 
