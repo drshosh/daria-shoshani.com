@@ -439,8 +439,13 @@ section {
 }
 #countdown-overlay.hidden { display: none; }
 #countdown-overlay video {
+  display: block;
   width: 320px;
-  height: auto;
+  height: 320px;
+  max-width: 90vw;
+  max-height: 90vw;
+  object-fit: contain;
+  background: #fff;
 }
 
 /* --- LIGHTBOX --- */
