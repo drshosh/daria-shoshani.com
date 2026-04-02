@@ -31,11 +31,18 @@
   window.addEventListener('mousedown', () => { dot.classList.remove('hover'); dot.classList.add('press'); });
   window.addEventListener('mouseup',   () => dot.classList.remove('press'));
 
-  // --- HERO HEIGHT: match GIF natural proportions at full width (no top/bottom crop) ---
+  // --- HERO HEIGHT ---
+  // Desktop: match GIF natural proportions (no crop).
+  // Mobile: fill the full viewport height so the GIF covers the screen portrait-style.
   const heroEl2 = document.getElementById('hero');
   const GIF_RATIO = 1029 / 1456; // height / width
   const setHeroHeight = () => {
-    if (heroEl2) heroEl2.style.height = (window.innerWidth * GIF_RATIO) + 'px';
+    if (!heroEl2) return;
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      heroEl2.style.height = window.innerHeight + 'px';
+    } else {
+      heroEl2.style.height = (window.innerWidth * GIF_RATIO) + 'px';
+    }
   };
   setHeroHeight();
   window.addEventListener('resize', setHeroHeight);
