@@ -417,7 +417,7 @@ section {
 .work-title {
   font-family: var(--serif);
   font-size: 2.2rem;
-  font-weight: 300;
+  font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
   text-transform: uppercase;
@@ -1102,7 +1102,7 @@ button.mobile-nav-link {
     gap: 0;
   }
 
-  .work-title { font-size: 1.8rem; }
+  .work-title { font-size: 1.8rem; font-weight: 300; }
 
   /* Image: second */
   .work-img-wrap {
