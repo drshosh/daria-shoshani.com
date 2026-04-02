@@ -446,7 +446,7 @@
         const bgList = card.dataset.bg ? JSON.parse(card.dataset.bg) : [];
         bgList.forEach(src => preloadBgVideo(src));
         const images = JSON.parse(card.dataset.images);
-        if (images.length) preloadMedia(images[0]);
+        images.forEach(src => preloadMedia(src));
       } catch(e) {}
     }, { once: true });
 
