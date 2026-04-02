@@ -1163,7 +1163,8 @@ button.mobile-nav-link {
     max-width: 100%;
   }
 
-  .about-left { position: static; }
+  .about-left  { position: static; order: 2; }
+  .about-right { order: 1; }
 
   .about-photo img {
     width: 100%;
