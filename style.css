@@ -1050,32 +1050,8 @@ button.mobile-nav-link {
   #draw-section { display: none; }
   .nav-hamburger { display: flex; margin-left: auto; }
 
-  /* Draw mode on mobile: swap hamburger for draw controls */
-  body.draw-mode .nav-hamburger { display: none; }
-  body.draw-mode #draw-section  { display: flex; }
-
-  /* 2-row colour grid */
-  body.draw-mode .draw-panel {
-    height: auto;
-    flex-wrap: wrap;
-  }
-
-  body.draw-mode .draw-swatches {
-    width: 100%;
-    flex: none;
-    flex-wrap: wrap;
-    overflow-x: visible;
-  }
-
-  body.draw-mode .swatch {
-    width: calc(100% / 6);   /* 6 per row → 2 rows of 6 = 12 */
-    height: auto;
-    min-width: 0;
-    aspect-ratio: 1;
-  }
-
-  body.draw-mode .draw-size-row { flex: 1; height: 4rem; }
-  body.draw-mode .draw-clear-btn { height: 4rem; }
+  /* Draw feature disabled on mobile */
+  #mobile-draw-trigger { display: none; }
 
   .swatch:nth-child(n+13) { display: none; }
 
