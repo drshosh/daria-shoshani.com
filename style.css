@@ -543,6 +543,7 @@ section {
 }
 
 #back-to-top {
+  display: block;
   position: fixed;
   bottom: 1.5rem;
   left: 2rem;
@@ -550,15 +551,15 @@ section {
   border: none;
   font-size: 4rem;
   font-family: var(--serif);
-  color: rgba(0,0,0,0.35);
+  color: #111;
   cursor: pointer;
   padding: 0;
   line-height: 1;
   transition: opacity 0.2s;
-  opacity: 0.85;
+  opacity: 0.35;
   z-index: 100;
 }
-#back-to-top:hover { opacity: 1; }
+#back-to-top:hover { opacity: 0.85; }
 
 #lightbox.light-bg #lb-close,
 #lightbox.light-bg #lb-prev,
