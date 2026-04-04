@@ -1063,6 +1063,7 @@ button.mobile-nav-link {
   .hero-name {
     font-size: 11.5vw;
     padding: 1.2rem 0;
+    top: 1.5rem;
     width: 100%;
     justify-content: center;
   }
