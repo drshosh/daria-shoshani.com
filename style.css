@@ -1062,10 +1062,10 @@ button.mobile-nav-link {
 
   /* ── HERO NAME ── */
   .hero-name {
-    font-size: 1.4rem;
+    font-size: calc((100vw - 3rem) / 9.2);
     padding: 1.5rem;
     top: 0;
-    width: auto;
+    width: 100%;
     justify-content: flex-start;
   }
 
