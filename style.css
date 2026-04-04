@@ -1063,7 +1063,7 @@ button.mobile-nav-link {
 
   /* ── HERO BG: crop to match reference — swan fills portrait frame ── */
   .hero-bg {
-    background-position: 15% center;
+    background-position: left center;
   }
 
   /* ── GENERAL SECTIONS ── */
