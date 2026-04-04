@@ -1085,9 +1085,9 @@ button.mobile-nav-link {
     padding: 1.2rem 1.5rem;
   }
 
-  /* ── HERO BG: shift crop left so swan (at ~25% of GIF) stays visible ── */
+  /* ── HERO BG: crop to match reference — swan fills portrait frame ── */
   .hero-bg {
-    background-position: 25% center;
+    background-position: 15% center;
   }
 
   /* ── GENERAL SECTIONS ── */
