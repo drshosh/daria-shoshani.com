@@ -39,7 +39,7 @@
   const setHeroHeight = () => {
     if (!heroEl2) return;
     if (window.matchMedia('(max-width: 768px)').matches) {
-      heroEl2.style.height = window.innerHeight + 'px';
+      heroEl2.style.height = ''; // CSS handles height via natural video dimensions
     } else {
       heroEl2.style.height = (window.innerWidth * GIF_RATIO) + 'px';
     }
