@@ -275,6 +275,11 @@
     wrap.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
   });
 
+  // --- BACK TO TOP ---
+  document.getElementById('back-to-top').addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  });
+
   // --- ABOUT BUTTON: scroll to #about ---
   const aboutBtn = document.getElementById('about-btn');
   if (aboutBtn) {
