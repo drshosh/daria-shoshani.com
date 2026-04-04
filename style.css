@@ -209,6 +209,10 @@ img { display: block; max-width: 100%; }
   display: none;
 }
 
+.hero-mobile-video {
+  display: none; /* hidden on desktop */
+}
+
 .hero-name {
   position: fixed;
   top: 0;
@@ -1061,9 +1065,16 @@ button.mobile-nav-link {
     padding: 1.2rem 1.5rem;
   }
 
-  /* ── HERO BG: crop to match reference — swan fills portrait frame ── */
-  .hero-bg {
-    background-position: left center;
+  /* ── HERO: swap GIF for dedicated mobile MP4 ── */
+  .hero-bg { display: none; }
+  .hero-mobile-video {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
   }
 
   /* ── GENERAL SECTIONS ── */
