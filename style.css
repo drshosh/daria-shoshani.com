@@ -1086,7 +1086,7 @@ button.mobile-nav-link {
 
   /* ── WORKS SECTION ── */
   #works {
-    padding-top: 2rem;
+    padding-top: 2.5rem;
     padding-left: 0;
     padding-right: 0;
     padding-bottom: 3rem;
@@ -1095,8 +1095,8 @@ button.mobile-nav-link {
   #works .section-head {
     padding-left: 7.5%;
     padding-right: 7.5%;
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.5rem;
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 
   .collection-head { padding: 3rem 7.5% 1rem; }
@@ -1110,7 +1110,7 @@ button.mobile-nav-link {
   /* Title row: first in DOM, appears first */
   .work-foot {
     order: 1;
-    padding: 1.8rem 7.5% 0.8rem;
+    padding: 2.5rem 7.5% 0.8rem;
     gap: 0;
   }
 
