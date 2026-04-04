@@ -1068,7 +1068,9 @@ button.mobile-nav-link {
   /* ── HERO: swap GIF for dedicated mobile MP4 ── */
   .hero-bg { display: none; }
   #hero {
-    height: auto !important; /* let video natural height set the section */
+    height: auto !important;
+    background: none;
+    line-height: 0;
   }
   .hero-mobile-video {
     display: block;
