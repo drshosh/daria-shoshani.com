@@ -275,6 +275,14 @@
     wrap.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
   });
 
+  // --- ABOUT BUTTON: scroll to #about ---
+  const aboutBtn = document.getElementById('about-btn');
+  if (aboutBtn) {
+    aboutBtn.addEventListener('click', () => {
+      document.getElementById('about').scrollIntoView({ behavior: 'instant', block: 'start' });
+    });
+  }
+
   // --- SMOOTH SCROLL ---
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', e => {
