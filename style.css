@@ -1174,10 +1174,14 @@ button.mobile-nav-link {
   .about-left  { position: static; order: 2; }
   .about-right { order: 1; }
 
+  .about-photo {
+    text-align: center;
+  }
+
   .about-photo img {
     max-width: 85%;
     width: 85%;
-    display: block;
+    display: inline-block;
   }
 
   .about-right {
