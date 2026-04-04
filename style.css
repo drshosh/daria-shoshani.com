@@ -1164,7 +1164,8 @@ button.mobile-nav-link {
   .about-right { order: 1; }
 
   .about-photo img {
-    width: 100%;
+    max-width: 85%;
+    width: 85%;
     display: block;
   }
 
@@ -1248,7 +1249,7 @@ button.mobile-nav-link {
   footer {
     flex-direction: column;
     gap: 1rem;
-    text-align: left;
+    text-align: right;
     padding: 2rem 1.5rem;
   }
 
