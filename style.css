@@ -1116,16 +1116,17 @@ button.mobile-nav-link {
   /* Image: second */
   .work-img-wrap {
     order: 2;
-    padding: 0;          /* no extra space — image fills the card width */
+    padding: 0;
     display: block;
+    text-align: center;
   }
 
   .work-cover {
-    width: 100% !important;
-    max-width: 100% !important;
+    width: 85% !important;
+    max-width: 85% !important;
     max-height: none !important;
     height: auto;
-    display: block;
+    display: inline-block;
     object-fit: contain;
   }
 
