@@ -782,10 +782,11 @@ section {
   height: 100vh;
   z-index: 600;
   pointer-events: none;
-  isolation: isolate;
 }
-body.draw-mode #draw-svg         { pointer-events: all; cursor: url('brand_assets/pencil-cursor.png') 4 44, crosshair; }
-body.eraser-mode #draw-svg       { pointer-events: all; cursor: cell; }
+body.draw-mode #draw-svg   { pointer-events: all; cursor: url('brand_assets/pencil-cursor.png') 4 44, crosshair; }
+body.eraser-mode #draw-svg { pointer-events: all; cursor: cell; }
+body.draw-mode #site-nav,
+body.eraser-mode #site-nav { z-index: 700; pointer-events: all; }
 body.draw-mode #cursor-dot     { display: none; }
 
 #draw-toggle {
@@ -800,7 +801,6 @@ body.draw-mode #cursor-dot     { display: none; }
 #draw-toggle:hover,
 #draw-toggle.active { background: #f0f0f0; color: inherit; }
 
-body.draw-mode #site-nav { z-index: 700; }
 
 .draw-panel {
   display: none;

@@ -71,13 +71,25 @@
   let drawWidth  = 8;
   let lastPt     = { x: null, y: null };
 
-  // drawGroup holds all ink strokes; eraserGroup (destination-out) always sits after
-  // so it composites against the ink and punches holes correctly.
   const drawGroup = document.createElementNS(svgNS, 'g');
-  const eraserGroup = document.createElementNS(svgNS, 'g');
-  eraserGroup.style.mixBlendMode = 'destination-out';
   drawSvg.appendChild(drawGroup);
-  drawSvg.appendChild(eraserGroup);
+
+  // Spatial eraser: find lines whose segment passes within radius of a point and remove them
+  const distToSegment = (px, py, x1, y1, x2, y2) => {
+    const dx = x2 - x1, dy = y2 - y1;
+    const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy || 1)));
+    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+  };
+
+  const eraseAt = (x, y) => {
+    const radius = drawWidth * 2;
+    Array.from(drawGroup.querySelectorAll('line')).forEach(line => {
+      if (distToSegment(x, y,
+        +line.getAttribute('x1'), +line.getAttribute('y1'),
+        +line.getAttribute('x2'), +line.getAttribute('y2')
+      ) < radius) drawGroup.removeChild(line);
+    });
+  };
 
   const setEraserMode = (on) => {
     eraserMode = on;
@@ -139,8 +151,7 @@
   drawWidthInput.addEventListener('input', () => { drawWidth = +drawWidthInput.value; });
 
   drawClear.addEventListener('click', () => {
-    while (drawGroup.firstChild)   drawGroup.removeChild(drawGroup.firstChild);
-    while (eraserGroup.firstChild) eraserGroup.removeChild(eraserGroup.firstChild);
+    while (drawGroup.firstChild) drawGroup.removeChild(drawGroup.firstChild);
   });
 
   drawSvg.addEventListener('mousedown', (e) => {
@@ -152,16 +163,20 @@
 
   drawSvg.addEventListener('mousemove', (e) => {
     if ((!drawMode && !eraserMode) || !drawing || lastPt.x === null) return;
-    const line = document.createElementNS(svgNS, 'line');
-    line.setAttribute('x1', lastPt.x);
-    line.setAttribute('y1', lastPt.y);
-    line.setAttribute('x2', e.clientX);
-    line.setAttribute('y2', e.clientY);
-    line.setAttribute('stroke', eraserMode ? 'black' : drawColor);
-    line.setAttribute('stroke-width', eraserMode ? drawWidth * 3 : drawWidth);
-    line.setAttribute('stroke-linecap', 'round');
-    line.setAttribute('stroke-linejoin', 'round');
-    (eraserMode ? eraserGroup : drawGroup).appendChild(line);
+    if (eraserMode) {
+      eraseAt(e.clientX, e.clientY);
+    } else {
+      const line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', lastPt.x);
+      line.setAttribute('y1', lastPt.y);
+      line.setAttribute('x2', e.clientX);
+      line.setAttribute('y2', e.clientY);
+      line.setAttribute('stroke', drawColor);
+      line.setAttribute('stroke-width', drawWidth);
+      line.setAttribute('stroke-linecap', 'round');
+      line.setAttribute('stroke-linejoin', 'round');
+      drawGroup.appendChild(line);
+    }
     lastPt = { x: e.clientX, y: e.clientY };
   });
 
@@ -172,14 +187,18 @@
 
   // --- TOUCH DRAWING (mobile) ---
   const drawLine = (x1, y1, x2, y2) => {
+    if (eraserMode) {
+      eraseAt(x2, y2);
+      return;
+    }
     const line = document.createElementNS(svgNS, 'line');
     line.setAttribute('x1', x1); line.setAttribute('y1', y1);
     line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-    line.setAttribute('stroke', eraserMode ? 'black' : drawColor);
-    line.setAttribute('stroke-width', eraserMode ? drawWidth * 3 : drawWidth);
+    line.setAttribute('stroke', drawColor);
+    line.setAttribute('stroke-width', drawWidth);
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('stroke-linejoin', 'round');
-    (eraserMode ? eraserGroup : drawGroup).appendChild(line);
+    drawGroup.appendChild(line);
   };
 
   drawSvg.addEventListener('touchstart', (e) => {
