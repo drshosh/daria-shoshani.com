@@ -782,8 +782,10 @@ section {
   height: 100vh;
   z-index: 600;
   pointer-events: none;
+  isolation: isolate;
 }
-body.draw-mode #draw-svg       { pointer-events: all; cursor: url('brand_assets/pencil-cursor.png') 4 44, crosshair; }
+body.draw-mode #draw-svg         { pointer-events: all; cursor: url('brand_assets/pencil-cursor.png') 4 44, crosshair; }
+body.eraser-mode #draw-svg       { pointer-events: all; cursor: cell; }
 body.draw-mode #cursor-dot     { display: none; }
 
 #draw-toggle {
@@ -862,6 +864,7 @@ body.draw-mode #site-nav { z-index: 700; }
   text-transform: uppercase;
 }
 .draw-clear-btn:hover { background: #111; color: #fff; }
+.draw-clear-btn.active { background: #111; color: #fff; }
 
 /* --- FOOTER --- */
 footer {

@@ -60,22 +60,44 @@
   const drawToggle = document.getElementById('draw-toggle');
   const drawPanel  = document.getElementById('draw-panel');
   const drawClear  = document.getElementById('draw-clear');
+  const drawEraser = document.getElementById('draw-eraser');
   const drawWidthInput = document.getElementById('draw-width');
   const svgNS = 'http://www.w3.org/2000/svg';
 
-  let drawMode  = false;
-  let drawing   = false;
-  let drawColor = '#111111';
-  let drawWidth = 8;
-  let lastPt    = { x: null, y: null };
+  let drawMode   = false;
+  let eraserMode = false;
+  let drawing    = false;
+  let drawColor  = '#111111';
+  let drawWidth  = 8;
+  let lastPt     = { x: null, y: null };
+
+  // Lazily-created group for eraser strokes (destination-out blend)
+  let eraserGroup = null;
+  const getEraserGroup = () => {
+    if (!eraserGroup) {
+      eraserGroup = document.createElementNS(svgNS, 'g');
+      eraserGroup.style.mixBlendMode = 'destination-out';
+      drawSvg.appendChild(eraserGroup);
+    }
+    return eraserGroup;
+  };
+
+  const setEraserMode = (on) => {
+    eraserMode = on;
+    drawEraser.classList.toggle('active', on);
+    document.body.classList.toggle('eraser-mode', on);
+    document.body.classList.toggle('draw-mode', !on);
+  };
 
   const exitDraw = () => {
-    drawMode = false;
-    drawing  = false;
-    lastPt   = { x: null, y: null };
+    drawMode   = false;
+    eraserMode = false;
+    drawing    = false;
+    lastPt     = { x: null, y: null };
     drawToggle.classList.remove('active');
+    drawEraser.classList.remove('active');
     drawPanel.classList.remove('open');
-    document.body.classList.remove('draw-mode');
+    document.body.classList.remove('draw-mode', 'eraser-mode');
   };
 
   // Click toggles draw mode on/off
@@ -98,11 +120,22 @@
     }
   });
 
+  drawEraser.addEventListener('click', () => {
+    if (!eraserMode) {
+      setEraserMode(true);
+      document.querySelectorAll('.swatch').forEach(b => b.classList.remove('active'));
+    } else {
+      setEraserMode(false);
+      document.querySelector('.swatch.active') || document.querySelector('.swatch').classList.add('active');
+    }
+  });
+
   document.querySelectorAll('.swatch').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.swatch').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       drawColor = btn.dataset.color;
+      if (eraserMode) setEraserMode(false);
     });
   });
 
@@ -110,27 +143,28 @@
 
   drawClear.addEventListener('click', () => {
     while (drawSvg.firstChild) drawSvg.removeChild(drawSvg.firstChild);
+    eraserGroup = null;
   });
 
   drawSvg.addEventListener('mousedown', (e) => {
-    if (!drawMode || e.button !== 0) return;
+    if ((!drawMode && !eraserMode) || e.button !== 0) return;
     drawing = true;
     lastPt = { x: e.clientX, y: e.clientY };
     e.preventDefault();
   });
 
   drawSvg.addEventListener('mousemove', (e) => {
-    if (!drawMode || !drawing || lastPt.x === null) return;
+    if ((!drawMode && !eraserMode) || !drawing || lastPt.x === null) return;
     const line = document.createElementNS(svgNS, 'line');
     line.setAttribute('x1', lastPt.x);
     line.setAttribute('y1', lastPt.y);
     line.setAttribute('x2', e.clientX);
     line.setAttribute('y2', e.clientY);
-    line.setAttribute('stroke', drawColor);
-    line.setAttribute('stroke-width', drawWidth);
+    line.setAttribute('stroke', eraserMode ? 'black' : drawColor);
+    line.setAttribute('stroke-width', eraserMode ? drawWidth * 3 : drawWidth);
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('stroke-linejoin', 'round');
-    drawSvg.appendChild(line);
+    (eraserMode ? getEraserGroup() : drawSvg).appendChild(line);
     lastPt = { x: e.clientX, y: e.clientY };
   });
 
@@ -144,15 +178,15 @@
     const line = document.createElementNS(svgNS, 'line');
     line.setAttribute('x1', x1); line.setAttribute('y1', y1);
     line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-    line.setAttribute('stroke', drawColor);
-    line.setAttribute('stroke-width', drawWidth);
+    line.setAttribute('stroke', eraserMode ? 'black' : drawColor);
+    line.setAttribute('stroke-width', eraserMode ? drawWidth * 3 : drawWidth);
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('stroke-linejoin', 'round');
-    drawSvg.appendChild(line);
+    (eraserMode ? getEraserGroup() : drawSvg).appendChild(line);
   };
 
   drawSvg.addEventListener('touchstart', (e) => {
-    if (!drawMode) return;
+    if (!drawMode && !eraserMode) return;
     e.preventDefault();
     const t = e.touches[0];
     drawing = true;
@@ -160,7 +194,7 @@
   }, { passive: false });
 
   drawSvg.addEventListener('touchmove', (e) => {
-    if (!drawMode || !drawing || lastPt.x === null) return;
+    if ((!drawMode && !eraserMode) || !drawing || lastPt.x === null) return;
     e.preventDefault();
     const t = e.touches[0];
     drawLine(lastPt.x, lastPt.y, t.clientX, t.clientY);
