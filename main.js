@@ -207,7 +207,8 @@
     }, 3000); // wait 3s so critical assets load first
   });
 
-  previewLinks.forEach(link => {
+  if (!window.matchMedia('(max-width: 768px)').matches) {
+    previewLinks.forEach(link => {
       const raw = link.getAttribute('href');
 
       link.addEventListener('mouseenter', () => {
@@ -226,6 +227,7 @@
         preview.classList.remove('show');
       });
     });
+  }
 
   // --- NAV: white text when dark content is behind it ---
   const siteNavBar = document.getElementById('site-nav');
