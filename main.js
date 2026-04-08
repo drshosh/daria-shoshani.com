@@ -71,16 +71,13 @@
   let drawWidth  = 8;
   let lastPt     = { x: null, y: null };
 
-  // Lazily-created group for eraser strokes (destination-out blend)
-  let eraserGroup = null;
-  const getEraserGroup = () => {
-    if (!eraserGroup) {
-      eraserGroup = document.createElementNS(svgNS, 'g');
-      eraserGroup.style.mixBlendMode = 'destination-out';
-      drawSvg.appendChild(eraserGroup);
-    }
-    return eraserGroup;
-  };
+  // drawGroup holds all ink strokes; eraserGroup (destination-out) always sits after
+  // so it composites against the ink and punches holes correctly.
+  const drawGroup = document.createElementNS(svgNS, 'g');
+  const eraserGroup = document.createElementNS(svgNS, 'g');
+  eraserGroup.style.mixBlendMode = 'destination-out';
+  drawSvg.appendChild(drawGroup);
+  drawSvg.appendChild(eraserGroup);
 
   const setEraserMode = (on) => {
     eraserMode = on;
@@ -142,8 +139,8 @@
   drawWidthInput.addEventListener('input', () => { drawWidth = +drawWidthInput.value; });
 
   drawClear.addEventListener('click', () => {
-    while (drawSvg.firstChild) drawSvg.removeChild(drawSvg.firstChild);
-    eraserGroup = null;
+    while (drawGroup.firstChild)   drawGroup.removeChild(drawGroup.firstChild);
+    while (eraserGroup.firstChild) eraserGroup.removeChild(eraserGroup.firstChild);
   });
 
   drawSvg.addEventListener('mousedown', (e) => {
@@ -164,7 +161,7 @@
     line.setAttribute('stroke-width', eraserMode ? drawWidth * 3 : drawWidth);
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('stroke-linejoin', 'round');
-    (eraserMode ? getEraserGroup() : drawSvg).appendChild(line);
+    (eraserMode ? eraserGroup : drawGroup).appendChild(line);
     lastPt = { x: e.clientX, y: e.clientY };
   });
 
@@ -182,7 +179,7 @@
     line.setAttribute('stroke-width', eraserMode ? drawWidth * 3 : drawWidth);
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('stroke-linejoin', 'round');
-    (eraserMode ? getEraserGroup() : drawSvg).appendChild(line);
+    (eraserMode ? eraserGroup : drawGroup).appendChild(line);
   };
 
   drawSvg.addEventListener('touchstart', (e) => {
