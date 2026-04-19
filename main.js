@@ -269,7 +269,7 @@
     html2canvas(document.body, {
       useCORS:       true,
       logging:       false,
-      scale:         1.5,
+      scale:         0.8,
       x:             window.scrollX,
       y:             window.scrollY,
       width:         window.innerWidth,
@@ -280,7 +280,7 @@
       restoreToolbars();
       // Composite the drawing strokes on top of the page screenshot
       await stampStrokes(canvas.getContext('2d'), canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/jpeg', 0.88));
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
     }).catch(() => {
       restoreToolbars();
       fallbackSvgExport().then(resolve).catch(err => reject({ stage: 'capture', err }));
