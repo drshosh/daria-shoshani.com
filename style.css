@@ -783,7 +783,7 @@ section {
   z-index: 600;
   pointer-events: none;
 }
-body.draw-mode #draw-svg   { pointer-events: all; cursor: url('brand_assets/pencil-cursor.png') 4 44, crosshair; }
+body.draw-mode #draw-svg   { pointer-events: all; cursor: crosshair; }
 body.eraser-mode #draw-svg { pointer-events: all; cursor: cell; }
 body.draw-mode #site-nav,
 body.eraser-mode #site-nav { z-index: 700; pointer-events: all; }
@@ -865,6 +865,31 @@ body.draw-mode #cursor-dot     { display: none; }
 }
 .draw-clear-btn:hover { background: #111; color: #fff; }
 .draw-clear-btn.active { background: #111; color: #fff; }
+.draw-clear-btn:disabled { opacity: 0.5; cursor: default; }
+
+/* --- DRAW TOAST --- */
+#draw-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(0.6rem);
+  background: #111;
+  color: #fff;
+  padding: 0.9rem 2rem;
+  font-size: 1rem;
+  font-family: inherit;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.25s, transform 0.25s;
+}
+#draw-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
 /* --- FOOTER --- */
 footer {

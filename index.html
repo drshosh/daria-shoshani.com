@@ -45,8 +45,7 @@
       <div id="draw-panel" class="draw-panel">
         <div class="draw-swatches">
           <!-- First 12: one from each family — shown on mobile too -->
-          <button class="swatch active" data-color="#151210" style="background:#151210" title="Lamp black"></button>
-          <button class="swatch" data-color="#7c5838" style="background:#7c5838" title="Umber"></button>
+          <button class="swatch active" data-color="#7c5838" style="background:#7c5838" title="Umber"></button>
           <button class="swatch" data-color="#9c4c28" style="background:#9c4c28" title="Burnt sienna"></button>
           <button class="swatch" data-color="#c87858" style="background:#c87858" title="Terracotta"></button>
           <button class="swatch" data-color="#c49240" style="background:#c49240" title="Ochre"></button>
@@ -55,7 +54,6 @@
           <button class="swatch" data-color="#4c7868" style="background:#4c7868" title="Teal"></button>
           <button class="swatch" data-color="#1e3850" style="background:#1e3850" title="Prussian blue"></button>
           <button class="swatch" data-color="#6888a4" style="background:#6888a4" title="Dusty blue"></button>
-          <button class="swatch" data-color="#5a4868" style="background:#5a4868" title="Mauve"></button>
           <button class="swatch" data-color="#7a7878" style="background:#7a7878" title="Warm grey"></button>
           <!-- Remaining detail shades — desktop only -->
           <button class="swatch" data-color="#241c14" style="background:#241c14" title="Warm black"></button>
@@ -93,6 +91,7 @@
         </div>
         <button id="draw-eraser" class="draw-clear-btn">Eraser</button>
         <button id="draw-clear" class="draw-clear-btn">Clear</button>
+        <button id="draw-send" class="draw-clear-btn draw-send-btn">Send</button>
       </div>
     </div>
   </nav>
@@ -428,6 +427,9 @@
 
   <button id="back-to-top" aria-label="Back to top">&#8593;</button>
 
+  <div id="draw-toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="main.js?v=2"></script>
 </body>
 </html>

@@ -67,7 +67,7 @@
   let drawMode   = false;
   let eraserMode = false;
   let drawing    = false;
-  let drawColor  = '#111111';
+  let drawColor  = '#7c5838';
   let drawWidth  = 8;
   let lastPt     = { x: null, y: null };
 
@@ -82,7 +82,7 @@
   };
 
   const eraseAt = (x, y) => {
-    const radius = drawWidth * 2;
+    const radius = drawWidth;
     Array.from(drawGroup.querySelectorAll('line')).forEach(line => {
       if (distToSegment(x, y,
         +line.getAttribute('x1'), +line.getAttribute('y1'),
@@ -152,6 +152,123 @@
 
   drawClear.addEventListener('click', () => {
     while (drawGroup.firstChild) drawGroup.removeChild(drawGroup.firstChild);
+  });
+
+  // --- DRAWING: SEND VIA EMAILJS ---
+  // To enable sending, create a free account at https://emailjs.com then:
+  //   1. Add an email service (e.g. Gmail) and note the Service ID
+  //   2. Create a template — subject: "New drawing", body: <img src="{{drawing}}"> — note the Template ID
+  //   3. Copy your Public Key from Account > API Keys
+  //   4. Paste all three values below
+  const EMAILJS_PUBLIC_KEY  = '3d4DIAcuJXfWIj9G4';
+  const EMAILJS_SERVICE_ID  = 'service_jkxfbys';
+  const EMAILJS_TEMPLATE_ID = 'template_k0zrdkw';
+
+  if (typeof emailjs !== 'undefined') emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+  const drawSend  = document.getElementById('draw-send');
+  const drawToast = document.getElementById('draw-toast');
+
+  let toastTimer = null;
+  const showToast = (msg, duration) => {
+    drawToast.textContent = msg;
+    drawToast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => drawToast.classList.remove('show'), duration || 5000);
+  };
+
+  const exportDrawingAsPng = () => new Promise((resolve, reject) => {
+    if (!drawGroup.querySelector('line')) { reject('empty'); return; }
+    if (typeof html2canvas === 'undefined') { reject('no-lib'); return; }
+
+    // Hide the draw toolbar so it doesn't appear in the screenshot
+    drawPanel.style.visibility = 'hidden';
+
+    const fallbackSvgExport = () => {
+      // SVG-strokes-only export (always works, used when screenshot is blocked)
+      const lines = drawGroup.querySelectorAll('line');
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      lines.forEach(line => {
+        const sw = (+line.getAttribute('stroke-width') || 8) / 2;
+        const x1 = +line.getAttribute('x1'), y1 = +line.getAttribute('y1');
+        const x2 = +line.getAttribute('x2'), y2 = +line.getAttribute('y2');
+        minX = Math.min(minX, x1 - sw, x2 - sw); maxX = Math.max(maxX, x1 + sw, x2 + sw);
+        minY = Math.min(minY, y1 - sw, y2 - sw); maxY = Math.max(maxY, y1 + sw, y2 + sw);
+      });
+      const pad = 28;
+      const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
+      const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
+      const vh = Math.min(window.innerHeight, maxY + pad) - vy;
+      const scale = Math.min(1, 900 / vw);
+      const cw = Math.round(vw * scale), ch = Math.round(vh * scale);
+      const svgStr = '<svg xmlns="' + svgNS + '" width="' + cw + '" height="' + ch + '" viewBox="' + vx + ' ' + vy + ' ' + vw + ' ' + vh + '">'
+        + '<rect x="' + vx + '" y="' + vy + '" width="' + vw + '" height="' + vh + '" fill="white"/>'
+        + new XMLSerializer().serializeToString(drawGroup) + '</svg>';
+      return new Promise((res, rej) => {
+        const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+        const url  = URL.createObjectURL(blob);
+        const img  = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          c.width = cw; c.height = ch;
+          c.getContext('2d').drawImage(img, 0, 0, cw, ch);
+          URL.revokeObjectURL(url);
+          res(c.toDataURL('image/jpeg', 0.88));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); rej('svg-render'); };
+        img.src = url;
+      });
+    };
+
+    html2canvas(document.body, {
+      useCORS:       true,
+      logging:       false,
+      scale:         0.35,
+      x:             window.scrollX,
+      y:             window.scrollY,
+      width:         window.innerWidth,
+      height:        window.innerHeight,
+      windowWidth:   window.innerWidth,
+      windowHeight:  window.innerHeight,
+    }).then(canvas => {
+      drawPanel.style.visibility = '';
+      resolve(canvas.toDataURL('image/jpeg', 0.65));
+    }).catch(() => {
+      // Screenshot blocked (e.g. file:// protocol) — fall back to strokes only
+      drawPanel.style.visibility = '';
+      fallbackSvgExport().then(resolve).catch(err => reject({ stage: 'capture', err }));
+    });
+  });
+
+  drawSend.addEventListener('click', async () => {
+    if (!drawGroup.querySelector('line')) {
+      showToast('Draw something first!');
+      return;
+    }
+    drawSend.textContent = 'Sending…';
+    drawSend.disabled = true;
+    try {
+      const dataUrl = await exportDrawingAsPng();
+      if (typeof emailjs === 'undefined') throw new Error('emailjs not loaded');
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        drawing:   dataUrl,
+        timestamp: new Date().toLocaleString()
+      });
+      showToast('Sent anonymously!', 6000);
+    } catch (err) {
+      if (err === 'empty') {
+        showToast('Draw something first!');
+      } else if (err && err.stage === 'capture') {
+        showToast('Screenshot failed — try again.');
+        console.error('[draw-send] capture error:', err.err);
+      } else {
+        showToast('Could not send — try again.');
+        console.error('[draw-send] send error:', JSON.stringify(err));
+      }
+    } finally {
+      drawSend.textContent = 'Send';
+      drawSend.disabled = false;
+    }
   });
 
   drawSvg.addEventListener('mousedown', (e) => {
