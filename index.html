@@ -107,7 +107,7 @@
     </nav>
   </div>
 
-  <!-- MOBILE DRAW TOOLBAR -->
+  <!-- MOBILE DRAW TOOLBAR — right palette panel -->
   <div id="mobile-draw-toolbar" aria-hidden="true">
     <button id="mdt-close" class="mdt-close-btn" aria-label="Exit draw mode">&#x2715;</button>
     <div class="mdt-palette">
@@ -128,16 +128,16 @@
       <button class="swatch" data-color="#7c5838" style="background:#7c5838" title="Umber"></button>
       <button class="swatch" data-color="#241c14" style="background:#241c14" title="Warm black"></button>
     </div>
-    <div class="mdt-controls">
-      <div class="mdt-row-btns">
-        <button id="mdt-eraser" class="mdt-btn">Eraser</button>
-        <button id="mdt-clear" class="mdt-btn">Clear</button>
-        <button id="mdt-send" class="mdt-btn">Send</button>
-      </div>
-      <div class="mdt-row-size">
-        <span>Size</span>
-        <input type="range" id="mdt-width" min="2" max="28" value="8" />
-      </div>
+  </div>
+
+  <!-- MOBILE DRAW CONTROLS — bottom bar -->
+  <div id="mdt-controls-bar" aria-hidden="true">
+    <button id="mdt-eraser" class="mdt-btn">Eraser</button>
+    <button id="mdt-clear" class="mdt-btn">Clear</button>
+    <button id="mdt-send" class="mdt-btn">Send</button>
+    <div class="mdt-row-size">
+      <span>Size</span>
+      <input type="range" id="mdt-width" min="2" max="28" value="8" />
     </div>
   </div>
 

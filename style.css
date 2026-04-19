@@ -895,8 +895,9 @@ body.draw-mode #cursor-dot     { display: none; }
 body.draw-mode #back-to-top,
 body.eraser-mode #back-to-top { display: none; }
 
-/* Mobile draw toolbar — hidden globally, shown via .open on ≤768px */
+/* Mobile draw UI — hidden globally, shown via .open on ≤768px */
 #mobile-draw-toolbar { display: none; }
+#mdt-controls-bar    { display: none; }
 
 /* --- FOOTER --- */
 footer {
@@ -943,7 +944,7 @@ footer {
   position: fixed;
   inset: 0;
   background: #fff;
-  z-index: 500;
+  z-index: 750; /* above draw SVG (600) so menu is always clickable */
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -1088,7 +1089,14 @@ button.mobile-nav-link {
   .nav-link,
   .nav-dropdown-wrap,
   #draw-section { display: none; }
-  .nav-hamburger { display: flex; margin-left: auto; }
+  .nav-hamburger {
+    display: flex;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 810; /* above draw SVG (600) and draw toolbar (800) */
+    background: transparent;
+  }
 
   /* Draw feature enabled on mobile — trigger shown in hamburger menu */
 
@@ -1319,72 +1327,67 @@ button.mobile-nav-link {
     max-height: 80vh;
   }
 
-  /* ── MOBILE DRAW TOOLBAR ── */
+  /* ── MOBILE DRAW TOOLBAR — right palette panel ── */
   #mobile-draw-toolbar.open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 48px; /* leave room for the controls bar */
+    width: 48px;
+    background: rgba(247, 247, 247, 0.97);
+    border-left: 1px solid var(--border);
+    z-index: 800;
+  }
+
+  /* Close × at the top */
+  .mdt-close-btn {
+    flex: 0 0 40px;
+    width: 100%;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #777;
+    padding: 0;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Palette: single column, swatches share available height equally */
+  .mdt-palette {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .mdt-palette .swatch {
+    flex: 1;          /* distribute evenly — no scrolling needed */
+    width: 48px;
+    min-height: 0;
+    aspect-ratio: auto;
+    border: none;
+    border-radius: 0;
+  }
+
+  /* ── MOBILE DRAW CONTROLS — bottom horizontal bar ── */
+  #mdt-controls-bar.open {
     display: flex;
     align-items: stretch;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
+    height: 48px;
     background: rgba(247, 247, 247, 0.97);
     border-top: 1px solid var(--border);
     z-index: 800;
-    min-height: 80px;
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-  }
-
-  .mdt-close-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: none;
-    border: none;
-    border-left: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    font-size: 1.6rem;
-    width: 3.2rem;
-    height: 3.2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #555;
-    z-index: 1;
-    padding: 0;
-    line-height: 1;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .mdt-palette {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    overflow-y: auto;
-    flex: 0 0 96px;
-    border-right: 1px solid var(--border);
-    -webkit-overflow-scrolling: touch;
-    align-content: start;
-  }
-
-  .mdt-palette .swatch {
-    width: 24px;
-    height: 24px;
-    aspect-ratio: auto;
-  }
-
-  .mdt-controls {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    padding-right: 3.2rem; /* room for close button */
-  }
-
-  .mdt-row-btns {
-    display: flex;
-    flex: 1;
-    border-bottom: 1px solid var(--border);
   }
 
   .mdt-btn {
@@ -1393,16 +1396,17 @@ button.mobile-nav-link {
     border-right: 1px solid var(--border);
     background: transparent;
     font-family: var(--serif);
-    font-size: 1.05rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     cursor: pointer;
     padding: 0;
     color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     -webkit-tap-highlight-color: transparent;
   }
-
-  .mdt-btn:last-child { border-right: none; }
 
   .mdt-btn:active,
   .mdt-btn.active { background: #111; color: #fff; }
@@ -1410,18 +1414,19 @@ button.mobile-nav-link {
   .mdt-btn:disabled { opacity: 0.5; }
 
   .mdt-row-size {
+    flex: 1.8;
     display: flex;
     align-items: center;
     gap: 0.8rem;
     padding: 0 1rem;
-    flex: 1;
-    font-size: 1.05rem;
+    border-left: 1px solid var(--border);
+    font-size: 1rem;
     color: #555;
   }
 
   .mdt-row-size input[type=range] {
     flex: 1;
-    accent-color: #9b2335;
     min-width: 0;
+    accent-color: #9b2335;
   }
 }

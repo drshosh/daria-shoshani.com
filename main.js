@@ -242,6 +242,30 @@
       });
     };
 
+    // Stamp the SVG strokes onto a canvas context at the given pixel size.
+    // html2canvas doesn't capture the fixed SVG overlay, so we do it manually.
+    const stampStrokes = (ctx, cw, ch) => new Promise((res) => {
+      const svgEl = document.createElementNS(svgNS, 'svg');
+      svgEl.setAttribute('xmlns', svgNS);
+      svgEl.setAttribute('width',   String(cw));
+      svgEl.setAttribute('height',  String(ch));
+      svgEl.setAttribute('viewBox', '0 0 ' + window.innerWidth + ' ' + window.innerHeight);
+      svgEl.appendChild(drawGroup.cloneNode(true));
+      const str  = new XMLSerializer().serializeToString(svgEl);
+      const blob = new Blob([str], { type: 'image/svg+xml' });
+      const url  = URL.createObjectURL(blob);
+      const img  = new Image();
+      img.onload = () => { ctx.drawImage(img, 0, 0, cw, ch); URL.revokeObjectURL(url); res(); };
+      img.onerror = () => { URL.revokeObjectURL(url); res(); }; // silently skip if fails
+      img.src = url;
+    });
+
+    const restoreToolbars = () => {
+      drawPanel.style.visibility = '';
+      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
+      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
+    };
+
     html2canvas(document.body, {
       useCORS:       true,
       logging:       false,
@@ -252,16 +276,13 @@
       height:        window.innerHeight,
       windowWidth:   window.innerWidth,
       windowHeight:  window.innerHeight,
-    }).then(canvas => {
-      drawPanel.style.visibility = '';
-      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
-      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
+    }).then(async canvas => {
+      restoreToolbars();
+      // Composite the drawing strokes on top of the page screenshot
+      await stampStrokes(canvas.getContext('2d'), canvas.width, canvas.height);
       resolve(canvas.toDataURL('image/jpeg', 0.88));
     }).catch(() => {
-      // Screenshot blocked (e.g. file:// protocol) — fall back to strokes only
-      drawPanel.style.visibility = '';
-      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
-      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
+      restoreToolbars();
       fallbackSvgExport().then(resolve).catch(err => reject({ stage: 'capture', err }));
     });
   });
@@ -281,7 +302,7 @@
         drawing:   dataUrl,
         timestamp: new Date().toLocaleString()
       });
-      showToast('Sent anonymously!', 6000);
+      showToast('SENT ANNONYMOUSLY', 6000);
     } catch (err) {
       if (err === 'empty') {
         showToast('Draw something first!');
@@ -726,7 +747,12 @@
       mobileMenu.setAttribute('aria-hidden', 'true');
     };
 
-    hamburger.addEventListener('click', openMenu);
+    hamburger.addEventListener('click', () => {
+      // Cancel any in-progress drawing stroke before opening the menu
+      drawing = false;
+      lastPt  = { x: null, y: null };
+      openMenu();
+    });
     mobileClose.addEventListener('click', closeMenu);
 
     mobileMenu.querySelectorAll('.mobile-nav-link, .mobile-nav-sublink').forEach(link => {
