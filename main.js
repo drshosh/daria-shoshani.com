@@ -65,12 +65,19 @@
   const svgNS = 'http://www.w3.org/2000/svg';
 
   // Mobile draw toolbar elements
-  const mdtToolbar    = document.getElementById('mobile-draw-toolbar');
-  const mdtEraserBtn  = document.getElementById('mdt-eraser');
-  const mdtClearBtn   = document.getElementById('mdt-clear');
-  const mdtSendBtn    = document.getElementById('mdt-send');
-  const mdtCloseBtn   = document.getElementById('mdt-close');
-  const mdtWidthInput = document.getElementById('mdt-width');
+  const mdtToolbar     = document.getElementById('mobile-draw-toolbar');
+  const mdtControlsBar = document.getElementById('mdt-controls-bar');
+  const mdtEraserBtn   = document.getElementById('mdt-eraser');
+  const mdtClearBtn    = document.getElementById('mdt-clear');
+  const mdtSendBtn     = document.getElementById('mdt-send');
+  const mdtCloseBtn    = document.getElementById('mdt-close');
+  const mdtWidthInput  = document.getElementById('mdt-width');
+
+  const showMobileDrawUI = (on) => {
+    const hidden = on ? 'false' : 'true';
+    if (mdtToolbar)     { mdtToolbar.classList.toggle('open', on);     mdtToolbar.setAttribute('aria-hidden', hidden); }
+    if (mdtControlsBar) { mdtControlsBar.classList.toggle('open', on); mdtControlsBar.setAttribute('aria-hidden', hidden); }
+  };
 
   let drawMode   = false;
   let eraserMode = false;
@@ -116,7 +123,7 @@
     drawEraser.classList.remove('active');
     drawPanel.classList.remove('open');
     document.body.classList.remove('draw-mode', 'eraser-mode');
-    if (mdtToolbar) { mdtToolbar.classList.remove('open'); mdtToolbar.setAttribute('aria-hidden', 'true'); }
+    showMobileDrawUI(false);
     if (mdtEraserBtn) mdtEraserBtn.classList.remove('active');
   };
 
@@ -129,10 +136,7 @@
       drawToggle.classList.add('active');
       drawPanel.classList.add('open');
       document.body.classList.add('draw-mode');
-      if (mdtToolbar && window.matchMedia('(max-width: 768px)').matches) {
-        mdtToolbar.classList.add('open');
-        mdtToolbar.setAttribute('aria-hidden', 'false');
-      }
+      if (window.matchMedia('(max-width: 768px)').matches) showMobileDrawUI(true);
     }
   });
 
@@ -199,7 +203,8 @@
 
     // Hide the draw toolbars so they don't appear in the screenshot
     drawPanel.style.visibility = 'hidden';
-    if (mdtToolbar) mdtToolbar.style.visibility = 'hidden';
+    if (mdtToolbar)     mdtToolbar.style.visibility     = 'hidden';
+    if (mdtControlsBar) mdtControlsBar.style.visibility = 'hidden';
 
     const fallbackSvgExport = () => {
       // SVG-strokes-only export (always works, used when screenshot is blocked)
@@ -240,7 +245,7 @@
     html2canvas(document.body, {
       useCORS:       true,
       logging:       false,
-      scale:         0.35,
+      scale:         1.5,
       x:             window.scrollX,
       y:             window.scrollY,
       width:         window.innerWidth,
@@ -249,12 +254,14 @@
       windowHeight:  window.innerHeight,
     }).then(canvas => {
       drawPanel.style.visibility = '';
-      if (mdtToolbar) mdtToolbar.style.visibility = '';
-      resolve(canvas.toDataURL('image/jpeg', 0.65));
+      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
+      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
+      resolve(canvas.toDataURL('image/jpeg', 0.88));
     }).catch(() => {
       // Screenshot blocked (e.g. file:// protocol) — fall back to strokes only
       drawPanel.style.visibility = '';
-      if (mdtToolbar) mdtToolbar.style.visibility = '';
+      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
+      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
       fallbackSvgExport().then(resolve).catch(err => reject({ stage: 'capture', err }));
     });
   });
