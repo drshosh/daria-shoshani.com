@@ -64,10 +64,18 @@
   const drawWidthInput = document.getElementById('draw-width');
   const svgNS = 'http://www.w3.org/2000/svg';
 
+  // Mobile draw toolbar elements
+  const mdtToolbar    = document.getElementById('mobile-draw-toolbar');
+  const mdtEraserBtn  = document.getElementById('mdt-eraser');
+  const mdtClearBtn   = document.getElementById('mdt-clear');
+  const mdtSendBtn    = document.getElementById('mdt-send');
+  const mdtCloseBtn   = document.getElementById('mdt-close');
+  const mdtWidthInput = document.getElementById('mdt-width');
+
   let drawMode   = false;
   let eraserMode = false;
   let drawing    = false;
-  let drawColor  = '#7c5838';
+  let drawColor  = '#f5f0e8';
   let drawWidth  = 8;
   let lastPt     = { x: null, y: null };
 
@@ -94,6 +102,7 @@
   const setEraserMode = (on) => {
     eraserMode = on;
     drawEraser.classList.toggle('active', on);
+    if (mdtEraserBtn) mdtEraserBtn.classList.toggle('active', on);
     document.body.classList.toggle('eraser-mode', on);
     document.body.classList.toggle('draw-mode', !on);
   };
@@ -107,6 +116,8 @@
     drawEraser.classList.remove('active');
     drawPanel.classList.remove('open');
     document.body.classList.remove('draw-mode', 'eraser-mode');
+    if (mdtToolbar) { mdtToolbar.classList.remove('open'); mdtToolbar.setAttribute('aria-hidden', 'true'); }
+    if (mdtEraserBtn) mdtEraserBtn.classList.remove('active');
   };
 
   // Click toggles draw mode on/off
@@ -118,6 +129,10 @@
       drawToggle.classList.add('active');
       drawPanel.classList.add('open');
       document.body.classList.add('draw-mode');
+      if (mdtToolbar && window.matchMedia('(max-width: 768px)').matches) {
+        mdtToolbar.classList.add('open');
+        mdtToolbar.setAttribute('aria-hidden', 'false');
+      }
     }
   });
 
@@ -141,9 +156,10 @@
 
   document.querySelectorAll('.swatch').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.swatch').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      drawColor = btn.dataset.color;
+      const color = btn.dataset.color;
+      // Sync active state across both desktop and mobile palettes
+      document.querySelectorAll('.swatch').forEach(b => b.classList.toggle('active', b.dataset.color === color));
+      drawColor = color;
       if (eraserMode) setEraserMode(false);
     });
   });
@@ -181,8 +197,9 @@
     if (!drawGroup.querySelector('line')) { reject('empty'); return; }
     if (typeof html2canvas === 'undefined') { reject('no-lib'); return; }
 
-    // Hide the draw toolbar so it doesn't appear in the screenshot
+    // Hide the draw toolbars so they don't appear in the screenshot
     drawPanel.style.visibility = 'hidden';
+    if (mdtToolbar) mdtToolbar.style.visibility = 'hidden';
 
     const fallbackSvgExport = () => {
       // SVG-strokes-only export (always works, used when screenshot is blocked)
@@ -232,21 +249,24 @@
       windowHeight:  window.innerHeight,
     }).then(canvas => {
       drawPanel.style.visibility = '';
+      if (mdtToolbar) mdtToolbar.style.visibility = '';
       resolve(canvas.toDataURL('image/jpeg', 0.65));
     }).catch(() => {
       // Screenshot blocked (e.g. file:// protocol) — fall back to strokes only
       drawPanel.style.visibility = '';
+      if (mdtToolbar) mdtToolbar.style.visibility = '';
       fallbackSvgExport().then(resolve).catch(err => reject({ stage: 'capture', err }));
     });
   });
 
-  drawSend.addEventListener('click', async () => {
+  const allSendBtns = () => [drawSend, mdtSendBtn].filter(Boolean);
+
+  const doSend = async () => {
     if (!drawGroup.querySelector('line')) {
       showToast('Draw something first!');
       return;
     }
-    drawSend.textContent = 'Sending…';
-    drawSend.disabled = true;
+    allSendBtns().forEach(b => { b.textContent = 'Sending\u2026'; b.disabled = true; });
     try {
       const dataUrl = await exportDrawingAsPng();
       if (typeof emailjs === 'undefined') throw new Error('emailjs not loaded');
@@ -266,10 +286,11 @@
         console.error('[draw-send] send error:', JSON.stringify(err));
       }
     } finally {
-      drawSend.textContent = 'Send';
-      drawSend.disabled = false;
+      allSendBtns().forEach(b => { b.textContent = 'Send'; b.disabled = false; });
     }
-  });
+  };
+
+  drawSend.addEventListener('click', doSend);
 
   drawSvg.addEventListener('mousedown', (e) => {
     if ((!drawMode && !eraserMode) || e.button !== 0) return;
@@ -338,6 +359,18 @@
     drawing = false;
     lastPt = { x: null, y: null };
   });
+
+  // --- MOBILE DRAW TOOLBAR WIRING ---
+  if (mdtCloseBtn)   mdtCloseBtn.addEventListener('click', exitDraw);
+  if (mdtClearBtn)   mdtClearBtn.addEventListener('click', () => drawClear.click());
+  if (mdtSendBtn)    mdtSendBtn.addEventListener('click', doSend);
+  if (mdtEraserBtn)  mdtEraserBtn.addEventListener('click', () => drawEraser.click());
+  if (mdtWidthInput) {
+    mdtWidthInput.addEventListener('input', () => {
+      drawWidth = +mdtWidthInput.value;
+      drawWidthInput.value = mdtWidthInput.value;
+    });
+  }
 
   // --- HOVER LINK PREVIEW ---
   const preview = document.createElement('div');
@@ -697,7 +730,7 @@
     if (mobileDrawTrigger) {
       mobileDrawTrigger.addEventListener('click', () => {
         closeMenu();
-        if (!drawMode) drawToggle.click();
+        drawToggle.click(); // toggles draw mode on/off
       });
     }
   }
