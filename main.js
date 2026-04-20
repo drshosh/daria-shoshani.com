@@ -336,22 +336,26 @@
     }
     allSendBtns().forEach(b => { b.textContent = 'Sending\u2026'; b.disabled = true; });
     try {
-      // Use strokes-only export: no toolbar hiding, no html2canvas, always within EmailJS limits
       const dataUrl = await exportStrokesOnly();
+      console.log('[doSend] export ok, dataUrl length:', dataUrl.length, '(~' + Math.round(dataUrl.length / 1024) + 'KB)');
       if (typeof emailjs === 'undefined') throw new Error('emailjs not loaded');
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      console.log('[doSend] calling emailjs.send...');
+      const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         drawing:   dataUrl,
         timestamp: new Date().toLocaleString()
       });
+      console.log('[doSend] success:', result);
       showToast('Sent anonymously!', 6000);
     } catch (err) {
+      console.error('[doSend] FAILED:', err);
       if (err === 'empty') {
         showToast('Draw something first!');
-      } else if (err === 'svg-render') {
-        showToast('Export failed — try again.');
+      } else if (err && err.message === 'emailjs not loaded') {
+        showToast('EmailJS not loaded.');
       } else {
-        showToast('Could not send — try again.');
-        console.error('[draw-send] send error:', JSON.stringify(err));
+        const detail = err && (err.text || err.message || err.status || JSON.stringify(err));
+        showToast('Send failed: ' + detail, 8000);
+        console.error('[doSend] detail:', detail);
       }
     } finally {
       allSendBtns().forEach(b => { b.textContent = 'Send'; b.disabled = false; });
