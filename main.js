@@ -303,7 +303,8 @@
     const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
     const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
     const vh = Math.min(window.innerHeight, maxY + pad) - vy;
-    const scale = Math.min(2, 1000 / Math.max(vw, vh));
+    // Cap longest side at 500px and use low JPEG quality to stay under EmailJS's 50KB limit.
+    const scale = Math.min(1, 500 / Math.max(vw, vh));
     const cw = Math.round(vw * scale), ch = Math.round(vh * scale);
     const c = document.createElement('canvas');
     c.width = cw; c.height = ch;
@@ -324,7 +325,7 @@
       ctx.lineTo(x2, y2);
       ctx.stroke();
     });
-    return Promise.resolve(c.toDataURL('image/jpeg', 0.88));
+    return Promise.resolve(c.toDataURL('image/jpeg', 0.6));
   };
 
   const allSendBtns = () => [drawSend, mdtSendBtn].filter(Boolean);
