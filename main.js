@@ -201,13 +201,17 @@
     if (!drawGroup.querySelector('line')) { reject('empty'); return; }
     if (typeof html2canvas === 'undefined') { reject('no-lib'); return; }
 
-    // Hide the draw toolbars so they don't appear in the screenshot
     drawPanel.style.visibility = 'hidden';
     if (mdtToolbar)     mdtToolbar.style.visibility     = 'hidden';
     if (mdtControlsBar) mdtControlsBar.style.visibility = 'hidden';
 
+    const restoreToolbars = () => {
+      drawPanel.style.visibility = '';
+      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
+      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
+    };
+
     const fallbackSvgExport = () => {
-      // SVG-strokes-only export (always works, used when screenshot is blocked)
       const lines = drawGroup.querySelectorAll('line');
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
       lines.forEach(line => {
@@ -221,29 +225,26 @@
       const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
       const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
       const vh = Math.min(window.innerHeight, maxY + pad) - vy;
-      const scale = Math.min(1, 900 / vw);
+      const scale = Math.min(1, 400 / Math.max(vw, vh));
       const cw = Math.round(vw * scale), ch = Math.round(vh * scale);
-      const svgStr = '<svg xmlns="' + svgNS + '" width="' + cw + '" height="' + ch + '" viewBox="' + vx + ' ' + vy + ' ' + vw + ' ' + vh + '">'
-        + '<rect x="' + vx + '" y="' + vy + '" width="' + vw + '" height="' + vh + '" fill="white"/>'
-        + new XMLSerializer().serializeToString(drawGroup) + '</svg>';
-      return new Promise((res, rej) => {
-        const blob = new Blob([svgStr], { type: 'image/svg+xml' });
-        const url  = URL.createObjectURL(blob);
-        const img  = new Image();
-        img.onload = () => {
-          const c = document.createElement('canvas');
-          c.width = cw; c.height = ch;
-          c.getContext('2d').drawImage(img, 0, 0, cw, ch);
-          URL.revokeObjectURL(url);
-          res(c.toDataURL('image/jpeg', 0.88));
-        };
-        img.onerror = () => { URL.revokeObjectURL(url); rej('svg-render'); };
-        img.src = url;
+      const c = document.createElement('canvas');
+      c.width = cw; c.height = ch;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      lines.forEach(line => {
+        const x1 = (+line.getAttribute('x1') - vx) * scale;
+        const y1 = (+line.getAttribute('y1') - vy) * scale;
+        const x2 = (+line.getAttribute('x2') - vx) * scale;
+        const y2 = (+line.getAttribute('y2') - vy) * scale;
+        ctx.strokeStyle = line.getAttribute('stroke') || '#000';
+        ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * scale;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
       });
+      return Promise.resolve(c.toDataURL('image/jpeg', 0.65));
     };
 
-    // Stamp the SVG strokes onto a canvas context at the given pixel size.
-    // html2canvas doesn't capture the fixed SVG overlay, so we do it manually.
     const stampStrokes = (ctx, cw, ch) => new Promise((res) => {
       const svgEl = document.createElementNS(svgNS, 'svg');
       svgEl.setAttribute('xmlns', svgNS);
@@ -256,77 +257,29 @@
       const url  = URL.createObjectURL(blob);
       const img  = new Image();
       img.onload = () => { ctx.drawImage(img, 0, 0, cw, ch); URL.revokeObjectURL(url); res(); };
-      img.onerror = () => { URL.revokeObjectURL(url); res(); }; // silently skip if fails
+      img.onerror = () => { URL.revokeObjectURL(url); res(); };
       img.src = url;
     });
 
-    const restoreToolbars = () => {
-      drawPanel.style.visibility = '';
-      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
-      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
-    };
-
     html2canvas(document.body, {
-      useCORS:       true,
-      logging:       false,
-      scale:         0.8,
-      x:             window.scrollX,
-      y:             window.scrollY,
-      width:         window.innerWidth,
-      height:        window.innerHeight,
-      windowWidth:   window.innerWidth,
-      windowHeight:  window.innerHeight,
+      useCORS:     true,
+      logging:     false,
+      scale:       0.35,
+      x:           window.scrollX,
+      y:           window.scrollY,
+      width:       window.innerWidth,
+      height:      window.innerHeight,
+      windowWidth: window.innerWidth,
+      windowHeight:window.innerHeight,
     }).then(async canvas => {
       restoreToolbars();
-      // Composite the drawing strokes on top of the page screenshot
       await stampStrokes(canvas.getContext('2d'), canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/jpeg', 0.82));
+      resolve(canvas.toDataURL('image/jpeg', 0.65));
     }).catch(() => {
       restoreToolbars();
-      fallbackSvgExport().then(resolve).catch(err => reject({ stage: 'capture', err }));
+      fallbackSvgExport().then(resolve).catch(() => reject('export-failed'));
     });
   });
-
-  // Draw lines directly onto a canvas — no SVG-to-image conversion, no async, no failure path.
-  const exportStrokesOnly = () => {
-    const lines = drawGroup.querySelectorAll('line');
-    if (!lines.length) return Promise.reject('empty');
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    lines.forEach(line => {
-      const sw = (+line.getAttribute('stroke-width') || 8) / 2;
-      const x1 = +line.getAttribute('x1'), y1 = +line.getAttribute('y1');
-      const x2 = +line.getAttribute('x2'), y2 = +line.getAttribute('y2');
-      minX = Math.min(minX, x1 - sw, x2 - sw); maxX = Math.max(maxX, x1 + sw, x2 + sw);
-      minY = Math.min(minY, y1 - sw, y2 - sw); maxY = Math.max(maxY, y1 + sw, y2 + sw);
-    });
-    const pad = 40;
-    const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
-    const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
-    const vh = Math.min(window.innerHeight, maxY + pad) - vy;
-    // Cap longest side at 500px and use low JPEG quality to stay under EmailJS's 50KB limit.
-    const scale = Math.min(1, 500 / Math.max(vw, vh));
-    const cw = Math.round(vw * scale), ch = Math.round(vh * scale);
-    const c = document.createElement('canvas');
-    c.width = cw; c.height = ch;
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, cw, ch);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    lines.forEach(line => {
-      const x1 = (+line.getAttribute('x1') - vx) * scale;
-      const y1 = (+line.getAttribute('y1') - vy) * scale;
-      const x2 = (+line.getAttribute('x2') - vx) * scale;
-      const y2 = (+line.getAttribute('y2') - vy) * scale;
-      ctx.strokeStyle = line.getAttribute('stroke') || '#000000';
-      ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * scale;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-    });
-    return Promise.resolve(c.toDataURL('image/jpeg', 0.6));
-  };
 
   const allSendBtns = () => [drawSend, mdtSendBtn].filter(Boolean);
 
@@ -337,26 +290,19 @@
     }
     allSendBtns().forEach(b => { b.textContent = 'Sending\u2026'; b.disabled = true; });
     try {
-      const dataUrl = await exportStrokesOnly();
-      console.log('[doSend] export ok, dataUrl length:', dataUrl.length, '(~' + Math.round(dataUrl.length / 1024) + 'KB)');
+      const dataUrl = await exportDrawingAsPng();
       if (typeof emailjs === 'undefined') throw new Error('emailjs not loaded');
-      console.log('[doSend] calling emailjs.send...');
-      const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         drawing:   dataUrl,
         timestamp: new Date().toLocaleString()
       });
-      console.log('[doSend] success:', result);
       showToast('Sent anonymously!', 6000);
     } catch (err) {
-      console.error('[doSend] FAILED:', err);
       if (err === 'empty') {
         showToast('Draw something first!');
-      } else if (err && err.message === 'emailjs not loaded') {
-        showToast('EmailJS not loaded.');
       } else {
-        const detail = err && (err.text || err.message || err.status || JSON.stringify(err));
-        showToast('Send failed: ' + detail, 8000);
-        console.error('[doSend] detail:', detail);
+        showToast('Could not send — try again.');
+        console.error('[draw-send]', err);
       }
     } finally {
       allSendBtns().forEach(b => { b.textContent = 'Send'; b.disabled = false; });
