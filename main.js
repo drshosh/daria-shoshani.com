@@ -287,6 +287,46 @@
     });
   });
 
+  // Draw lines directly onto a canvas — no SVG-to-image conversion, no async, no failure path.
+  const exportStrokesOnly = () => {
+    const lines = drawGroup.querySelectorAll('line');
+    if (!lines.length) return Promise.reject('empty');
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    lines.forEach(line => {
+      const sw = (+line.getAttribute('stroke-width') || 8) / 2;
+      const x1 = +line.getAttribute('x1'), y1 = +line.getAttribute('y1');
+      const x2 = +line.getAttribute('x2'), y2 = +line.getAttribute('y2');
+      minX = Math.min(minX, x1 - sw, x2 - sw); maxX = Math.max(maxX, x1 + sw, x2 + sw);
+      minY = Math.min(minY, y1 - sw, y2 - sw); maxY = Math.max(maxY, y1 + sw, y2 + sw);
+    });
+    const pad = 40;
+    const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
+    const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
+    const vh = Math.min(window.innerHeight, maxY + pad) - vy;
+    const scale = Math.min(2, 1000 / Math.max(vw, vh));
+    const cw = Math.round(vw * scale), ch = Math.round(vh * scale);
+    const c = document.createElement('canvas');
+    c.width = cw; c.height = ch;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, cw, ch);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    lines.forEach(line => {
+      const x1 = (+line.getAttribute('x1') - vx) * scale;
+      const y1 = (+line.getAttribute('y1') - vy) * scale;
+      const x2 = (+line.getAttribute('x2') - vx) * scale;
+      const y2 = (+line.getAttribute('y2') - vy) * scale;
+      ctx.strokeStyle = line.getAttribute('stroke') || '#000000';
+      ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * scale;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+    });
+    return Promise.resolve(c.toDataURL('image/jpeg', 0.88));
+  };
+
   const allSendBtns = () => [drawSend, mdtSendBtn].filter(Boolean);
 
   const doSend = async () => {
@@ -296,19 +336,19 @@
     }
     allSendBtns().forEach(b => { b.textContent = 'Sending\u2026'; b.disabled = true; });
     try {
-      const dataUrl = await exportDrawingAsPng();
+      // Use strokes-only export: no toolbar hiding, no html2canvas, always within EmailJS limits
+      const dataUrl = await exportStrokesOnly();
       if (typeof emailjs === 'undefined') throw new Error('emailjs not loaded');
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
         drawing:   dataUrl,
         timestamp: new Date().toLocaleString()
       });
-      showToast('SENT ANNONYMOUSLY', 6000);
+      showToast('Sent anonymously!', 6000);
     } catch (err) {
       if (err === 'empty') {
         showToast('Draw something first!');
-      } else if (err && err.stage === 'capture') {
-        showToast('Screenshot failed — try again.');
-        console.error('[draw-send] capture error:', err.err);
+      } else if (err === 'svg-render') {
+        showToast('Export failed — try again.');
       } else {
         showToast('Could not send — try again.');
         console.error('[draw-send] send error:', JSON.stringify(err));
@@ -543,6 +583,7 @@
     };
 
     if (countdownVideo) {
+      countdownVideo.play().catch(() => {});
       countdownVideo.addEventListener('ended',  () => { videoEnded = true;  tryHide(); });
       countdownVideo.addEventListener('error',  () => { videoEnded = true;  tryHide(); }); // fallback
     } else {
@@ -555,6 +596,11 @@
       window.addEventListener('load', () => { pageLoaded = true; tryHide(); });
     }
   }
+
+  // Explicitly play mobile hero video — reinforces the HTML autoplay attribute
+  // in browsers that require a JS-initiated play() call for inline muted video.
+  const heroMobileVideo = document.querySelector('.hero-mobile-video');
+  if (heroMobileVideo) heroMobileVideo.play().catch(() => {});
 
   // --- LIGHTBOX ---
   const lightbox  = document.getElementById('lightbox');

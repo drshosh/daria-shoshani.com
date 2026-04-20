@@ -891,6 +891,13 @@ body.draw-mode #cursor-dot     { display: none; }
   transform: translateX(-50%) translateY(0);
 }
 
+@media (max-width: 768px) {
+  body.draw-mode #draw-toast,
+  body.eraser-mode #draw-toast {
+    bottom: calc(48px + 1rem);
+  }
+}
+
 /* Hide back-to-top while drawing so it doesn't overlap the mobile toolbar */
 body.draw-mode #back-to-top,
 body.eraser-mode #back-to-top { display: none; }
