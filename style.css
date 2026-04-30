@@ -1103,6 +1103,7 @@ button.mobile-nav-link {
     right: 0;
     z-index: 810; /* above draw SVG (600) and draw toolbar (800) */
     background: transparent;
+    padding: 1.5rem 10%;
   }
 
   /* Draw feature enabled on mobile — trigger shown in hamburger menu */
@@ -1111,11 +1112,11 @@ button.mobile-nav-link {
 
   /* ── HERO NAME ── */
   .hero-name {
-    font-size: calc((100vw - 3rem) / 11);
-    padding: 1.5rem;
-    top: 3rem;
+    font-size: 2rem;
+    padding: 1.5rem 1.5rem 1.5rem 10%;
+    top: 0.5rem;
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
   }
 
   /* ── HERO: swap GIF for dedicated mobile MP4 ── */
