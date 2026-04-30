@@ -690,23 +690,23 @@
   document.querySelectorAll('.work-card[data-images]').forEach(card => {
     card.addEventListener('mouseenter', () => {
       try {
-        const bgList = card.dataset.bg ? JSON.parse(card.dataset.bg) : [];
+        const isMobile = window.innerWidth <= 768;
+        const bgRaw = (isMobile && card.dataset.bgMobile) ? card.dataset.bgMobile : card.dataset.bg;
+        const bgList = bgRaw ? JSON.parse(bgRaw) : [];
         bgList.forEach(src => preloadBgVideo(src));
-        const images = JSON.parse(card.dataset.images);
-        images.forEach(src => preloadMedia(src));
+        const raw = (isMobile && card.dataset.imagesMobile) ? card.dataset.imagesMobile : card.dataset.images;
+        JSON.parse(raw).forEach(src => preloadMedia(src));
       } catch(e) {}
     }, { once: true });
 
     card.querySelector('.work-img-wrap').addEventListener('click', () => {
       try {
-        const images = JSON.parse(card.dataset.images);
-        const bgList = card.dataset.bg ? JSON.parse(card.dataset.bg) : [];
-        if (images.length) {
-          const cover = card.querySelector('.work-cover');
-          const thumbSrc = cover ? cover.getAttribute('src') : null;
-          const startIndex = thumbSrc ? Math.max(0, images.indexOf(thumbSrc)) : 0;
-          openLb(images, startIndex, bgList);
-        }
+        const isMobile = window.innerWidth <= 768;
+        const raw = (isMobile && card.dataset.imagesMobile) ? card.dataset.imagesMobile : card.dataset.images;
+        const images = JSON.parse(raw);
+        const bgRaw = (isMobile && card.dataset.bgMobile) ? card.dataset.bgMobile : card.dataset.bg;
+        const bgList = bgRaw ? JSON.parse(bgRaw) : [];
+        if (images.length) openLb(images, 0, bgList);
       } catch(err) {}
     });
   });
