@@ -766,3 +766,386 @@
   }
 
 })();
+
+// ── ARCHIVE LOTTERY ──
+(function () {
+  const FLICKER_INTERVAL = 80;
+  const FLICKER_DURATION = 1000;
+
+  const ARCHIVE_IMAGES = [
+    "Images/random%20image/01F904CF-3D5E-4202-BB6F-BC02CAC18324.jpg",
+    "Images/random%20image/040644B0-F134-4C9E-8FC9-B4D6EECFDF79.jpg",
+    "Images/random%20image/084B03A6-4E59-4113-B6CD-6C59B5A03CD0.jpg",
+    "Images/random%20image/0E8EB3B5-420A-47B0-A554-D29165BEAEBF.jpg",
+    "Images/random%20image/0RFmovJA.jpg",
+    "Images/random%20image/1.jpg",
+    "Images/random%20image/10.jpg",
+    "Images/random%20image/10.png",
+    "Images/random%20image/1000029999.jpg",
+    "Images/random%20image/1000030003.jpg",
+    "Images/random%20image/11.png",
+    "Images/random%20image/12.png",
+    "Images/random%20image/13.png",
+    "Images/random%20image/14.png",
+    "Images/random%20image/144440.jpg",
+    "Images/random%20image/15.png",
+    "Images/random%20image/155555555550%202.jpg",
+    "Images/random%20image/15ABC8E7-1BB5-48E3-B29F-4BF86566CFCE.jpg",
+    "Images/random%20image/16.png",
+    "Images/random%20image/17213AFB-17CA-4DE6-A582-B5961CEE8C4C.JPG",
+    "Images/random%20image/17FB4BAB-A5B3-47B6-B1AF-2E9D5591E7D5.jpg",
+    "Images/random%20image/189822941_4757410577608361_5863556167050073642_n.jpg",
+    "Images/random%20image/2.JPG",
+    "Images/random%20image/2.png",
+    "Images/random%20image/20220517-DSC03723.JPG",
+    "Images/random%20image/20240619_171155.jpg",
+    "Images/random%20image/20240621_105336.jpg",
+    "Images/random%20image/217217.JPG",
+    "Images/random%20image/220220.JPG",
+    "Images/random%20image/222.JPG",
+    "Images/random%20image/25.jpg",
+    "Images/random%20image/2E864A13-C652-43BB-BDEA-5D69941427C2.jpg",
+    "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C.png",
+    "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C1.png",
+    "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C11.png",
+    "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C1111.png",
+    "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C111111.png",
+    "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C2.png",
+    "Images/random%20image/2b72d435-98de-4783-ac96-668db4f59f94.jpeg",
+    "Images/random%20image/3.png",
+    "Images/random%20image/305013753_5123716904406951_8486950662285550207_n.jpg",
+    "Images/random%20image/31A200F3-8D11-4D97-AB2C-2B4031928025.jpg",
+    "Images/random%20image/335b6f0d-7e18-401a-a568-441303e61b7b.jpg",
+    "Images/random%20image/34.jpg",
+    "Images/random%20image/371E1BCB-F8B8-4995-BFCA-CA700D15CA4B.JPG",
+    "Images/random%20image/3FFED338-D726-402E-A40F-551D65127C01.jpg",
+    "Images/random%20image/4%202.png",
+    "Images/random%20image/4.jpg",
+    "Images/random%20image/4.png",
+    "Images/random%20image/4306535D-AE31-462F-975F-05E625B5FB95.jpg",
+    "Images/random%20image/444F2A51-A8DF-40D3-B1C5-6ADBD7B8F9E2.jpg",
+    "Images/random%20image/445AF8F4-46FF-4CEE-B329-A52EB3DD38FB.jpg",
+    "Images/random%20image/471D62E3-3ECF-4A3E-993F-29CE50746D36_Original.jpg",
+    "Images/random%20image/473229339_910826921135776_4401412123490169757_n.jpg",
+    "Images/random%20image/5.jpg",
+    "Images/random%20image/5.png",
+    "Images/random%20image/5DDC52E8-DFF2-48A3-B3AE-59B2A8CD34DB.jpg",
+    "Images/random%20image/5EE85452-15D9-4A9A-AC56-F596EF28C09A.jpg",
+    "Images/random%20image/5FA36EAC-B447-4184-BCCB-176582AB20C0.jpg",
+    "Images/random%20image/6%202.jpg",
+    "Images/random%20image/6%202.png",
+    "Images/random%20image/6.png",
+    "Images/random%20image/7.png",
+    "Images/random%20image/768ADB34-5F9F-4724-9075-EB86E06267C8.jpg",
+    "Images/random%20image/79E18ADB-D673-4638-B0B7-C1F8C561FCEA.jpeg",
+    "Images/random%20image/8.D4_image_50806529.JPG",
+    "Images/random%20image/8.png",
+    "Images/random%20image/83145837_2720512984710392_3205651920584704_o.jpg",
+    "Images/random%20image/8E8CA807-B0B1-4912-A114-6C9CE840646B.jpg",
+    "Images/random%20image/8FE972BE-EF1F-4083-A0B0-D305ACF63A6A.jpg",
+    "Images/random%20image/9.png",
+    "Images/random%20image/915B585C-F8C5-412F-B978-04896D1002D1.jpg",
+    "Images/random%20image/9C8952E0-8C7D-4632-B499-4AB857540A56.jpg",
+    "Images/random%20image/A%20MAP.png",
+    "Images/random%20image/A6D9FC15-947B-4DED-A1D3-5BF8007BE3C5.jpg",
+    "Images/random%20image/A7A99BFC-1CFE-41AF-83E7-5030F2ED8907.jpg",
+    "Images/random%20image/B0BE8E22-2ECB-47C7-BA55-E5734CF82215.jpeg",
+    "Images/random%20image/B65A2E5D-DE5F-4D95-96EC-AAFB50133E46.jpg",
+    "Images/random%20image/B7835D69-1545-465A-A4E6-9374B5710EA7.jpg",
+    "Images/random%20image/C76F3F07-50C3-44AF-9F38-8BB976EBF85A.jpg",
+    "Images/random%20image/C7933753-A82E-4201-A622-7D250087E504.png",
+    "Images/random%20image/CCA931A5-EF7C-4247-9D76-AEA2A67C7192.jpg",
+    "Images/random%20image/CamScanner%2011-18-2023%2017.17_page-0001.jpg",
+    "Images/random%20image/Cf9SyTAg.jpg",
+    "Images/random%20image/D2B7D0C5-D85A-4A4D-BE92-FAD4656E8DD1.jpg",
+    "Images/random%20image/D2C956C6-5460-450D-8FA0-294FFF7B1363.jpg",
+    "Images/random%20image/D8EF0650-4905-42BB-BBDB-BC59219088EE.jpg",
+    "Images/random%20image/D9D28B29-7D66-4551-8EA1-3B47CE543168.jpg",
+    "Images/random%20image/DARIA%20SHOSHANI.jpg",
+    "Images/random%20image/DBE98B2F-AA3C-4005-BE3D-92E3C2EC2019.jpg",
+    "Images/random%20image/DCDD80E9-6C46-48CD-A445-4FADE116DE0C.jpg",
+    "Images/random%20image/DE9E6168-CBBA-4D40-BFAF-53CAF80F8E17.jpg",
+    "Images/random%20image/DSC03088.jpg",
+    "Images/random%20image/DSC03090.jpg",
+    "Images/random%20image/DSC03185-Enhanced-NR.jpg",
+    "Images/random%20image/DSC03238.jpg",
+    "Images/random%20image/DSC03543.jpg",
+    "Images/random%20image/DSC03547.jpg",
+    "Images/random%20image/DSC03550.jpg",
+    "Images/random%20image/DSC03555.jpg",
+    "Images/random%20image/DSC03556.jpg",
+    "Images/random%20image/DSC03562.jpg",
+    "Images/random%20image/DSC03565.jpg",
+    "Images/random%20image/DSC06626.jpg",
+    "Images/random%20image/DSC_0082.jpeg",
+    "Images/random%20image/DSC_0107.jpeg",
+    "Images/random%20image/EutGvc1w.jpg",
+    "Images/random%20image/F19437F7-E2A2-4EEC-8D0B-BA056717139F.jpg",
+    "Images/random%20image/F6108D9F-1FD2-4D1C-868D-AB26C7239B5B.jpg",
+    "Images/random%20image/F62B1DCF-4100-4BA2-838E-F0CA841CF959.jpg",
+    "Images/random%20image/F9F6DE19-A163-4DDC-A7D4-AC7C3F58FC4E.jpg",
+    "Images/random%20image/HUGE.jpeg",
+    "Images/random%20image/IMG-3070.jpg",
+    "Images/random%20image/IMG_0115.JPG",
+    "Images/random%20image/IMG_0117.JPG",
+    "Images/random%20image/IMG_0121.JPG",
+    "Images/random%20image/IMG_0123.JPG",
+    "Images/random%20image/IMG_0154.JPG",
+    "Images/random%20image/IMG_0257.JPG",
+    "Images/random%20image/IMG_0258.JPG",
+    "Images/random%20image/IMG_0298.JPG",
+    "Images/random%20image/IMG_0300.JPG",
+    "Images/random%20image/IMG_0362.jpeg",
+    "Images/random%20image/IMG_0511.jpeg",
+    "Images/random%20image/IMG_0536.jpg",
+    "Images/random%20image/IMG_0601.jpg",
+    "Images/random%20image/IMG_0834.jpeg",
+    "Images/random%20image/IMG_0851.JPG",
+    "Images/random%20image/IMG_0852%281%29.JPG",
+    "Images/random%20image/IMG_1425.jpg",
+    "Images/random%20image/IMG_1426.jpg",
+    "Images/random%20image/IMG_1427.jpg",
+    "Images/random%20image/IMG_1431.jpeg",
+    "Images/random%20image/IMG_1500.jpeg",
+    "Images/random%20image/IMG_1501.jpeg",
+    "Images/random%20image/IMG_1539.jpeg",
+    "Images/random%20image/IMG_1738.JPG",
+    "Images/random%20image/IMG_1783.png",
+    "Images/random%20image/IMG_20210901_135455_835.jpg",
+    "Images/random%20image/IMG_20211215_103312_586.jpg",
+    "Images/random%20image/IMG_20211231_182439_353.jpg",
+    "Images/random%20image/IMG_20220211_120710_258.jpg",
+    "Images/random%20image/IMG_20220315_131508.jpg",
+    "Images/random%20image/IMG_20220325_215534_937.jpg",
+    "Images/random%20image/IMG_20220417_114142_109.jpg",
+    "Images/random%20image/IMG_20220526_212749_729.jpg",
+    "Images/random%20image/IMG_20220526_212749_815.jpg",
+    "Images/random%20image/IMG_2045.JPG",
+    "Images/random%20image/IMG_2100.jpg",
+    "Images/random%20image/IMG_2102.jpg",
+    "Images/random%20image/IMG_2103.jpg",
+    "Images/random%20image/IMG_2105.jpg",
+    "Images/random%20image/IMG_2106.jpg",
+    "Images/random%20image/IMG_2107.jpg",
+    "Images/random%20image/IMG_2202.jpeg",
+    "Images/random%20image/IMG_2207.jpg",
+    "Images/random%20image/IMG_2214.jpg",
+    "Images/random%20image/IMG_2218.jpg",
+    "Images/random%20image/IMG_2221.jpg",
+    "Images/random%20image/IMG_2271.jpg",
+    "Images/random%20image/IMG_2375.jpeg",
+    "Images/random%20image/IMG_2652.jpg",
+    "Images/random%20image/IMG_2872.jpg",
+    "Images/random%20image/IMG_2874.jpg",
+    "Images/random%20image/IMG_2922.PNG",
+    "Images/random%20image/IMG_3105.JPG",
+    "Images/random%20image/IMG_3139.JPG",
+    "Images/random%20image/IMG_3282.JPG",
+    "Images/random%20image/IMG_3332.jpg",
+    "Images/random%20image/IMG_3854.JPG",
+    "Images/random%20image/IMG_4064.jpg",
+    "Images/random%20image/IMG_4089.jpg",
+    "Images/random%20image/IMG_4095.jpg",
+    "Images/random%20image/IMG_4104.jpg",
+    "Images/random%20image/IMG_4503.jpeg",
+    "Images/random%20image/IMG_5254.PNG",
+    "Images/random%20image/IMG_5958.JPG",
+    "Images/random%20image/IMG_6032.jpg",
+    "Images/random%20image/IMG_6033.jpg",
+    "Images/random%20image/IMG_6034.jpg",
+    "Images/random%20image/IMG_6036.jpg",
+    "Images/random%20image/IMG_6037.jpg",
+    "Images/random%20image/IMG_6038.jpg",
+    "Images/random%20image/IMG_6200.jpg",
+    "Images/random%20image/IMG_6548.JPG",
+    "Images/random%20image/IMG_6605%20%282%29.JPG",
+    "Images/random%20image/IMG_6611.JPG",
+    "Images/random%20image/IMG_6735.JPG",
+    "Images/random%20image/IMG_6775.JPG",
+    "Images/random%20image/IMG_6951.PNG",
+    "Images/random%20image/IMG_7045.JPG",
+    "Images/random%20image/IMG_7072.JPG",
+    "Images/random%20image/IMG_7110.JPG",
+    "Images/random%20image/IMG_7642.PNG",
+    "Images/random%20image/IMG_7885.jpg",
+    "Images/random%20image/IMG_7886.jpg",
+    "Images/random%20image/IMG_7887.jpg",
+    "Images/random%20image/IMG_7893.jpg",
+    "Images/random%20image/IMG_7897.jpg",
+    "Images/random%20image/IMG_7898.jpg",
+    "Images/random%20image/IMG_7899.jpg",
+    "Images/random%20image/IMG_8220.png",
+    "Images/random%20image/IMG_9057.JPG",
+    "Images/random%20image/IMG_9205.JPG",
+    "Images/random%20image/Image%20%2811%29.jpg",
+    "Images/random%20image/Image%20%2813%29.jpg",
+    "Images/random%20image/Image%20%2816%29.jpg",
+    "Images/random%20image/Image%20%285%29.jpg",
+    "Images/random%20image/Jerusalem%20I%20love%20you%20but%20youre%20bringing%20me%20down.jpg",
+    "Images/random%20image/JyXhVe2g.jpg",
+    "Images/random%20image/Kp6ExrFw.jpg",
+    "Images/random%20image/LongTimeNoSee-wasserwasser-InstallationView-HighRes-20.jpg",
+    "Images/random%20image/LongTimeNoSee-wasserwasser-Works-HighRes-20.jpg",
+    "Images/random%20image/STARS.jpg",
+    "Images/random%20image/Sad%20Cats.png",
+    "Images/random%20image/Schermata%202024-01-18%20alle%2018.25.21.png",
+    "Images/random%20image/Schermata%202024-01-18%20alle%2018.26.29.png",
+    "Images/random%20image/Schermata%202024-01-18%20alle%2018.30.06.png",
+    "Images/random%20image/Screen%20Shot%202021-12-12%20at%2014.42.49.png",
+    "Images/random%20image/Screensho3.png",
+    "Images/random%20image/Unbenanntes_Projekt%2811%29.png",
+    "Images/random%20image/Unstable%20Realities_Maxxi_26.06.2024_Marta%20Ferro_200.jpg",
+    "Images/random%20image/Unstable%20Realities_Maxxi_26.06.2024_Marta%20Ferro_208.jpg",
+    "Images/random%20image/Untitled_Artwork.JPG",
+    "Images/random%20image/VINYL_MOCKUP_FRONT.jpg",
+    "Images/random%20image/VINYL_MOCKUP_back.jpg",
+    "Images/random%20image/_MG_0006-HDR.JPG",
+    "Images/random%20image/adam.png",
+    "Images/random%20image/bN1c8bjQ.jpg",
+    "Images/random%20image/carborundum.png",
+    "Images/random%20image/choose%20a%20door.jpg",
+    "Images/random%20image/crop%20crop.jpeg",
+    "Images/random%20image/daria_centanni_31.jpg",
+    "Images/random%20image/daria_centanni_32.jpg",
+    "Images/random%20image/edited.png",
+    "Images/random%20image/image_67193345.JPG",
+    "Images/random%20image/image_67239169.JPG.jpg",
+    "Images/random%20image/kiss%20kiss%20back.png",
+    "Images/random%20image/kiss%20kiss%20front.png",
+    "Images/random%20image/longtimenosee_announcement-wasserwasser.jpg",
+    "Images/random%20image/paperpaintings-2.png",
+    "Images/random%20image/screenshot.png",
+    "Images/random%20image/screenshot2.png",
+    "Images/random%20image/talented%20back.png",
+    "Images/random%20image/%D7%90%D7%94%D7%91%D7%94%D7%90%D7%94%D7%91%D7%94.jpeg",
+    "Images/random%20image/%D7%90%D7%A8%D7%99%D7%94.jpg",
+    "Images/random%20image/%D7%92%D7%93%D7%A8%D7%94.jpg",
+    "Images/random%20image/%D7%92%D7%99%D7%93%D7%99.png",
+    "Images/random%20image/%D7%94%D7%93%D7%A4%D7%A1%20%D7%A2%D7%98%D7%9C%D7%A3.jpg",
+    "Images/random%20image/%D7%99%D7%94%D7%9C%D7%99%20%D7%91%D7%9B%D7%97%D7%95%D7%9C.jpeg",
+    "Images/random%20image/%D7%99%D7%94%D7%9C%D7%99%20%D7%99%D7%A9%D7%9F%20.jpeg",
+    "Images/random%20image/%D7%99%D7%A0%D7%A9%D7%95%D7%9C%202.jpg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%201.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%2013.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%2017.jpeg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%203.jpeg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%2031.jpeg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%204.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%2045.jpeg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%2047.jpeg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%2048.jpeg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%2058.jpeg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%95%D7%A7%2059.jpeg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20220203%20%282%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20240802%20%282%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20240803%20%283%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20240803%20%284%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20240803%20%288%29.jpg",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20240803%20%288%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%28129%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%28130%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2822%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2827%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2828%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2833%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2834%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2841%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2842%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2843%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2845%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2846%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2847%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%285%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2853%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2859%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2862%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2863%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2864%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2865%29.png",
+    "Images/random%20image/%D7%A1%D7%A8%D7%99%D7%A7%D7%94_20260324%20%2875%29.png",
+    "Images/random%20image/%D7%A2%D7%95%D7%AA%D7%A7%20%D7%A9%D7%9C%20%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202020_.04_.25%20%D7%91_.16.25.17%20%282%29.png",
+    "Images/random%20image/%D7%A2%D7%95%D7%AA%D7%A7%20%D7%A9%D7%9C%20%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202020_.04_.25%20%D7%91_.16.27.33.png",
+    "Images/random%20image/%D7%A2%D7%95%D7%AA%D7%A7%20%D7%A9%D7%9C%20%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202020_.04_.25%20%D7%91_.16.27.43%20%282%29.png",
+    "Images/random%20image/%D7%A2%D7%95%D7%AA%D7%A7%20%D7%A9%D7%9C%20%D7%A6%D7%99%D7%9C%D7%95%D7%9D%20%D7%9E%D7%A1%D7%9A%202020_.04_.25%20%D7%91_.16.31.46%20%282%29.png",
+    "Images/random%20image/%D7%A2%D7%9B%D7%91%D7%A8%D7%99%D7%9D%20%D7%91%D7%AA%D7%A7%D7%A8%D7%94%20%D7%A9%D7%9C%D7%99.jpg",
+    "Images/random%20image/%D7%A2%D7%A8%D7%95%D7%9A.jpg",
+    "Images/random%20image/%D7%A4%D7%97%D7%95%D7%AA%20%D7%9B%D7%91%D7%93.jpg",
+    "Images/random%20image/%D7%A5.jpg",
+    "Images/random%20image/%D7%AA.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202023-12-17%20%D7%91%D7%A9%D7%A2%D7%94%2021.42.44_806c6bca.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-06-19%20%D7%91%D7%A9%D7%A2%D7%94%2017.04.06_48ba1629.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.53_33f817a8.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.53_95380b24.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.57_a696bf18.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.58_2b6095d6.jpg"
+  ];
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  let deck = shuffle([...ARCHIVE_IMAGES]);
+  let pointer = 0;
+
+  function nextImage() {
+    if (pointer >= deck.length) {
+      deck = shuffle([...ARCHIVE_IMAGES]);
+      pointer = 0;
+    }
+    return deck[pointer++];
+  }
+
+  const FLICKER_POOL_SIZE = 14;
+
+  function preload(srcs) {
+    return Promise.all(srcs.map(src => new Promise(resolve => {
+      const i = new Image();
+      i.onload = i.onerror = resolve;
+      i.src = src;
+    })));
+  }
+
+  function pickPoolSrcs() {
+    const pool = [];
+    const copy = [...ARCHIVE_IMAGES];
+    shuffle(copy);
+    for (let i = 0; i < FLICKER_POOL_SIZE && i < copy.length; i++) pool.push(copy[i]);
+    return pool;
+  }
+
+  function runFlicker(img, btn, pool, chosen) {
+    let frame = 0;
+    const start = Date.now();
+    const timer = setInterval(() => {
+      img.src = pool[frame % pool.length];
+      frame++;
+      if (Date.now() - start >= FLICKER_DURATION) {
+        clearInterval(timer);
+        img.src = chosen;
+        btn.disabled = false;
+      }
+    }, FLICKER_INTERVAL);
+  }
+
+  function initArchive() {
+    const img = document.getElementById('archive-img');
+    const btn = document.getElementById('archive-btn');
+    if (!img || !btn || !ARCHIVE_IMAGES.length) return;
+
+    img.src = nextImage();
+
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      const chosen = nextImage();
+      const pool = pickPoolSrcs();
+
+      preload([...pool, chosen]).then(() => runFlicker(img, btn, pool, chosen));
+    });
+  }
+
+  initArchive();
+})();
