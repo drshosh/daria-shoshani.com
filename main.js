@@ -225,7 +225,7 @@
       const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
       const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
       const vh = Math.min(window.innerHeight, maxY + pad) - vy;
-      const scale = Math.min(1, 400 / Math.max(vw, vh));
+      const scale = Math.min(1, 700 / Math.max(vw, vh));
       const cw = Math.round(vw * scale), ch = Math.round(vh * scale);
       const c = document.createElement('canvas');
       c.width = cw; c.height = ch;
@@ -242,7 +242,7 @@
         ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * scale;
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
       });
-      return Promise.resolve(c.toDataURL('image/jpeg', 0.65));
+      return Promise.resolve(c.toDataURL('image/jpeg', 0.80));
     };
 
     const stampStrokes = (ctx, cw, ch) => new Promise((res) => {
@@ -264,7 +264,7 @@
     html2canvas(document.body, {
       useCORS:     true,
       logging:     false,
-      scale:       0.35,
+      scale:       0.65,
       x:           window.scrollX,
       y:           window.scrollY,
       width:       window.innerWidth,
@@ -274,7 +274,7 @@
     }).then(async canvas => {
       restoreToolbars();
       await stampStrokes(canvas.getContext('2d'), canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/jpeg', 0.65));
+      resolve(canvas.toDataURL('image/jpeg', 0.80));
     }).catch(() => {
       restoreToolbars();
       fallbackSvgExport().then(resolve).catch(() => reject('export-failed'));
