@@ -1269,12 +1269,12 @@ button.mobile-nav-link {
   .cv-col .cv-category:first-child { margin-top: 0; }
 
   .cv-list li {
-    grid-template-columns: 3.5rem 1fr;
+    grid-template-columns: 4.5rem 1fr;
     gap: 0.5rem;
     padding: 0.8rem 0;
   }
 
-  .cv-year { font-size: 1rem; }
+  .cv-year { font-size: 0.8rem; }
   .cv-list li div { font-size: 1.1rem; }
 
   .cv-download {
