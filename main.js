@@ -592,9 +592,9 @@
     if (isVideo(src)) {
       const v = mediaCache.get(src) || document.createElement('video');
       if (!mediaCache.has(src)) { v.src = src; mediaCache.set(src, v); }
-      v.controls = true; v.autoplay = true;
+      v.controls = true;
+      v.autoplay = false;
       lbMedia.appendChild(v);
-      v.play().catch(() => {});
     } else {
       const img = document.createElement('img');
       img.src = src; // hits HTTP cache if preloaded
