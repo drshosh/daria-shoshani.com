@@ -1466,22 +1466,22 @@ button.mobile-nav-link {
 }
 
 .archive-btn {
-  font-family: var(--font), sans-serif;
-  font-size: 1.1rem;
-  font-weight: 400;
+  font-family: var(--serif);
+  font-size: 2.6rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.01em;
   color: var(--text);
-  background: transparent;
-  border: 1px solid var(--text);
-  padding: 1.4rem 3.6rem;
+  background: none;
+  border: none;
+  padding: 0;
   cursor: pointer;
-  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+  text-decoration: none;
 }
 
 .archive-btn:hover {
-  background: var(--text);
-  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
 }
 
 .archive-btn:disabled {
