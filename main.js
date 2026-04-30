@@ -245,26 +245,26 @@
       return Promise.resolve(c.toDataURL('image/jpeg', 0.80));
     };
 
-    const stampStrokes = (ctx, cw, ch) => new Promise((res) => {
-      const svgEl = document.createElementNS(svgNS, 'svg');
-      svgEl.setAttribute('xmlns', svgNS);
-      svgEl.setAttribute('width',   String(cw));
-      svgEl.setAttribute('height',  String(ch));
-      svgEl.setAttribute('viewBox', '0 0 ' + window.innerWidth + ' ' + window.innerHeight);
-      svgEl.appendChild(drawGroup.cloneNode(true));
-      const str  = new XMLSerializer().serializeToString(svgEl);
-      const blob = new Blob([str], { type: 'image/svg+xml' });
-      const url  = URL.createObjectURL(blob);
-      const img  = new Image();
-      img.onload = () => { ctx.drawImage(img, 0, 0, cw, ch); URL.revokeObjectURL(url); res(); };
-      img.onerror = () => { URL.revokeObjectURL(url); res(); };
-      img.src = url;
-    });
+    const stampStrokes = (ctx, cw, ch) => {
+      const scaleX = cw / window.innerWidth;
+      const scaleY = ch / window.innerHeight;
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      drawGroup.querySelectorAll('line').forEach(line => {
+        const x1 = +line.getAttribute('x1') * scaleX;
+        const y1 = +line.getAttribute('y1') * scaleY;
+        const x2 = +line.getAttribute('x2') * scaleX;
+        const y2 = +line.getAttribute('y2') * scaleY;
+        ctx.strokeStyle = line.getAttribute('stroke') || '#000';
+        ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * Math.min(scaleX, scaleY);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      });
+      return Promise.resolve();
+    };
 
     html2canvas(document.body, {
       useCORS:     true,
       logging:     false,
-      scale:       0.65,
+      scale:       0.35,
       x:           window.scrollX,
       y:           window.scrollY,
       width:       window.innerWidth,
