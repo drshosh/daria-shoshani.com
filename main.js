@@ -486,9 +486,9 @@
     };
 
     if (countdownVideo) {
-      countdownVideo.play().catch(() => {});
+      countdownVideo.play().catch(() => { videoEnded = true; tryHide(); });
       countdownVideo.addEventListener('ended',  () => { videoEnded = true;  tryHide(); });
-      countdownVideo.addEventListener('error',  () => { videoEnded = true;  tryHide(); }); // fallback
+      countdownVideo.addEventListener('error',  () => { videoEnded = true;  tryHide(); });
     } else {
       videoEnded = true;
     }

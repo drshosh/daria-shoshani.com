@@ -780,6 +780,7 @@ section {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 600;
   pointer-events: none;
 }
@@ -825,8 +826,8 @@ body.draw-mode #cursor-dot     { display: none; }
 
 .swatch {
   flex: none;
-  height: 100%;
-  aspect-ratio: 1;
+  width: 2.8rem;
+  height: 2.8rem;
   border: none;
   border-radius: 0;
   cursor: pointer;
