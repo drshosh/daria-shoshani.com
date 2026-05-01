@@ -1053,14 +1053,6 @@
 
   const FLICKER_POOL_SIZE = 14;
 
-  function preload(srcs) {
-    return Promise.all(srcs.map(src => new Promise(resolve => {
-      const i = new Image();
-      i.onload = i.onerror = resolve;
-      i.src = src;
-    })));
-  }
-
   function pickPoolSrcs() {
     const pool = [];
     const copy = [...ARCHIVE_IMAGES];
@@ -1091,11 +1083,9 @@
     img.src = nextImage();
 
     btn.addEventListener('click', () => {
+      if (btn.disabled) return;
       btn.disabled = true;
-      const chosen = nextImage();
-      const pool = pickPoolSrcs();
-
-      preload([...pool, chosen]).then(() => runFlicker(img, btn, pool, chosen));
+      runFlicker(img, btn, pickPoolSrcs(), nextImage());
     });
   }
 
