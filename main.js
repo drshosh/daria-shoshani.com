@@ -197,94 +197,179 @@
     toastTimer = setTimeout(() => drawToast.classList.remove('show'), duration || 5000);
   };
 
-  const exportDrawingAsPng = () => new Promise((resolve, reject) => {
-    if (!drawGroup.querySelector('line')) { reject('empty'); return; }
+  // --- DRAWING EXPORT HELPERS ---
 
-    const directExport = () => {
-      const lines = drawGroup.querySelectorAll('line');
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      lines.forEach(line => {
-        const sw = (+line.getAttribute('stroke-width') || 8) / 2;
-        const x1 = +line.getAttribute('x1'), y1 = +line.getAttribute('y1');
-        const x2 = +line.getAttribute('x2'), y2 = +line.getAttribute('y2');
-        minX = Math.min(minX, x1 - sw, x2 - sw); maxX = Math.max(maxX, x1 + sw, x2 + sw);
-        minY = Math.min(minY, y1 - sw, y2 - sw); maxY = Math.max(maxY, y1 + sw, y2 + sw);
-      });
-      const pad = 28;
-      const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
-      const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
-      const vh = Math.min(window.innerHeight, maxY + pad) - vy;
-      const sc = Math.min(1, 1200 / Math.max(vw, vh));
-      const cw = Math.round(vw * sc), ch = Math.round(vh * sc);
-      const c = document.createElement('canvas');
-      c.width = cw; c.height = ch;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, cw, ch);
-      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      lines.forEach(line => {
-        const x1 = (+line.getAttribute('x1') - vx) * sc;
-        const y1 = (+line.getAttribute('y1') - vy) * sc;
-        const x2 = (+line.getAttribute('x2') - vx) * sc;
-        const y2 = (+line.getAttribute('y2') - vy) * sc;
-        ctx.strokeStyle = line.getAttribute('stroke') || '#000';
-        ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * sc;
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-      });
-      resolve(c.toDataURL('image/jpeg', 0.80));
-    };
+  const isBlankCanvas = (canvas) => {
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const step = Math.max(1, Math.floor(Math.min(W, H) / 7));
+    let whiteCount = 0, total = 0;
+    for (let y = step; y < H - step; y += step) {
+      for (let x = step; x < W - step; x += step) {
+        const d = ctx.getImageData(x, y, 1, 1).data;
+        if (d[0] > 250 && d[1] > 250 && d[2] > 250) whiteCount++;
+        total++;
+      }
+    }
+    return total === 0 || (whiteCount / total) > 0.95;
+  };
 
-    if (typeof html2canvas === 'undefined') { directExport(); return; }
-
-    drawPanel.style.visibility = 'hidden';
-    if (mdtToolbar)     mdtToolbar.style.visibility     = 'hidden';
-    if (mdtControlsBar) mdtControlsBar.style.visibility = 'hidden';
-
-    const restoreToolbars = () => {
-      drawPanel.style.visibility = '';
-      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
-      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
-    };
-
-    let settled = false;
-    const settle = (fn) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      restoreToolbars();
-      fn();
-    };
-    const timer = setTimeout(() => settle(directExport), 6000);
-
-    html2canvas(document.body, {
-      useCORS:     true,
-      logging:     false,
-      scale:       0.4,
-      x:           window.scrollX,
-      y:           window.scrollY,
-      width:       window.innerWidth,
-      height:      window.innerHeight,
-      windowWidth: window.innerWidth,
-      windowHeight:window.innerHeight,
-    }).then(canvas => {
-      settle(() => {
-        const scaleX = canvas.width  / window.innerWidth;
-        const scaleY = canvas.height / window.innerHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        drawGroup.querySelectorAll('line').forEach(line => {
-          const x1 = +line.getAttribute('x1') * scaleX;
-          const y1 = +line.getAttribute('y1') * scaleY;
-          const x2 = +line.getAttribute('x2') * scaleX;
-          const y2 = +line.getAttribute('y2') * scaleY;
-          ctx.strokeStyle = line.getAttribute('stroke') || '#000';
-          ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * Math.min(scaleX, scaleY);
-          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-        });
-        resolve(canvas.toDataURL('image/jpeg', 0.80));
-      });
-    }).catch(() => settle(directExport));
+  const loadImg = (src, ms = 2000) => new Promise(res => {
+    if (!src) return res(null);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    const t = setTimeout(() => res(null), ms);
+    img.onload  = () => { clearTimeout(t); res(img); };
+    img.onerror = () => { clearTimeout(t); res(null); };
+    img.src = src;
   });
+
+  const drawCover = (ctx, img, r, sc) => {
+    if (!img || r.width <= 0 || r.height <= 0) return;
+    const ir = img.naturalWidth / img.naturalHeight;
+    const br = r.width / r.height;
+    let sw, sh;
+    if (ir > br) { sh = r.height; sw = r.height * ir; }
+    else         { sw = r.width;  sh = r.width  / ir; }
+    const sx = (r.width - sw) / 2, sy = (r.height - sh) / 2;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(r.left * sc, r.top * sc, r.width * sc, r.height * sc);
+    ctx.clip();
+    ctx.drawImage(img, (r.left + sx) * sc, (r.top + sy) * sc, sw * sc, sh * sc);
+    ctx.restore();
+  };
+
+  const domImageCapture = async (VW, VH, sc) => {
+    const c = document.createElement('canvas');
+    c.width = Math.round(VW * sc); c.height = Math.round(VH * sc);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = getComputedStyle(document.body).backgroundColor || '#fff';
+    ctx.fillRect(0, 0, c.width, c.height);
+    const SKIP = '#draw-svg,#draw-panel,#mobile-draw-toolbar,#mdt-controls-bar,#site-nav,#countdown-overlay,#draw-toast,script,style,link';
+    const inVP  = r => r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < VH && r.right > 0 && r.left < VW;
+    const clamp = r => ({ left: Math.max(0, r.left), top: Math.max(0, r.top),
+                          width: Math.min(VW, r.right) - Math.max(0, r.left),
+                          height: Math.min(VH, r.bottom) - Math.max(0, r.top) });
+    for (const el of document.querySelectorAll('*')) {
+      if (el.matches(SKIP) || el.closest(SKIP)) continue;
+      const rect = el.getBoundingClientRect();
+      if (!inVP(rect)) continue;
+      const r = clamp(rect);
+      try {
+        if (el.tagName === 'IMG' && el.complete && el.naturalWidth > 0) {
+          const img = await loadImg(el.currentSrc || el.src);
+          if (img) ctx.drawImage(img, r.left * sc, r.top * sc, r.width * sc, r.height * sc);
+        } else if (el.tagName === 'VIDEO') {
+          try { ctx.drawImage(el, r.left * sc, r.top * sc, r.width * sc, r.height * sc); } catch (e) {}
+        } else {
+          const bgImg = getComputedStyle(el).backgroundImage;
+          if (bgImg && bgImg !== 'none') {
+            const m = bgImg.match(/url\(["']?([^"')]+)["']?\)/);
+            if (m) {
+              const img = await loadImg(m[1]);
+              if (getComputedStyle(el).backgroundSize.includes('cover')) drawCover(ctx, img, r, sc);
+              else if (img) ctx.drawImage(img, r.left * sc, r.top * sc, r.width * sc, r.height * sc);
+            }
+          }
+        }
+      } catch (e) {}
+    }
+    return c;
+  };
+
+  const stampStrokes = (canvas, sc) => {
+    const ctx = canvas.getContext('2d');
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    drawGroup.querySelectorAll('line').forEach(line => {
+      ctx.strokeStyle = line.getAttribute('stroke') || '#000';
+      ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * sc;
+      ctx.beginPath();
+      ctx.moveTo(+line.getAttribute('x1') * sc, +line.getAttribute('y1') * sc);
+      ctx.lineTo(+line.getAttribute('x2') * sc, +line.getAttribute('y2') * sc);
+      ctx.stroke();
+    });
+  };
+
+  const strokesOnlyExport = () => {
+    const lines = drawGroup.querySelectorAll('line');
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    lines.forEach(line => {
+      const sw = (+line.getAttribute('stroke-width') || 8) / 2;
+      const x1 = +line.getAttribute('x1'), y1 = +line.getAttribute('y1');
+      const x2 = +line.getAttribute('x2'), y2 = +line.getAttribute('y2');
+      minX = Math.min(minX, x1 - sw, x2 - sw); maxX = Math.max(maxX, x1 + sw, x2 + sw);
+      minY = Math.min(minY, y1 - sw, y2 - sw); maxY = Math.max(maxY, y1 + sw, y2 + sw);
+    });
+    const pad = 28;
+    const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
+    const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
+    const vh = Math.min(window.innerHeight, maxY + pad) - vy;
+    const sc = Math.min(1, 1200 / Math.max(vw, vh));
+    const c = document.createElement('canvas');
+    c.width = Math.round(vw * sc); c.height = Math.round(vh * sc);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    lines.forEach(line => {
+      ctx.strokeStyle = line.getAttribute('stroke') || '#000';
+      ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * sc;
+      ctx.beginPath();
+      ctx.moveTo((+line.getAttribute('x1') - vx) * sc, (+line.getAttribute('y1') - vy) * sc);
+      ctx.lineTo((+line.getAttribute('x2') - vx) * sc, (+line.getAttribute('y2') - vy) * sc);
+      ctx.stroke();
+    });
+    return c.toDataURL('image/jpeg', 0.80);
+  };
+
+  const adaptiveCompress = (canvas) => {
+    for (const q of [0.85, 0.72, 0.58, 0.45, 0.35]) {
+      try {
+        const url = canvas.toDataURL('image/jpeg', q);
+        if ((url.length - 22) * 0.75 < 46000) return url;
+      } catch (e) { break; }
+    }
+    return strokesOnlyExport();
+  };
+
+  const exportDrawingAsPng = async () => {
+    if (!drawGroup.querySelector('line')) throw 'empty';
+
+    const VW = window.innerWidth, VH = window.innerHeight;
+    const sc = Math.min(1, 900 / Math.max(VW, VH));
+
+    const toHide = [drawPanel, mdtToolbar, mdtControlsBar].filter(Boolean);
+    toHide.forEach(el => el.style.visibility = 'hidden');
+
+    let bgCanvas = null;
+    try {
+      if (typeof htmlToImage !== 'undefined') {
+        const FILTER_IDS = new Set(['draw-panel', 'mobile-draw-toolbar', 'mdt-controls-bar', 'draw-svg', 'draw-toast', 'countdown-overlay', 'site-nav']);
+        const filter = node => !(node.id && FILTER_IDS.has(node.id)) &&
+                               !(node.classList && node.classList.contains('draw-panel'));
+        bgCanvas = await Promise.race([
+          htmlToImage.toCanvas(document.body, { filter, useCORS: true, cacheBust: true, width: VW, height: VH }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000)),
+        ]);
+        if (isBlankCanvas(bgCanvas)) bgCanvas = null;
+      }
+    } catch (e) { bgCanvas = null; }
+
+    if (!bgCanvas) {
+      bgCanvas = await domImageCapture(VW, VH, sc);
+    } else if (sc < 1) {
+      const scaled = document.createElement('canvas');
+      scaled.width  = Math.round(VW * sc);
+      scaled.height = Math.round(VH * sc);
+      scaled.getContext('2d').drawImage(bgCanvas, 0, 0, scaled.width, scaled.height);
+      bgCanvas = scaled;
+    }
+
+    toHide.forEach(el => el.style.visibility = '');
+    stampStrokes(bgCanvas, sc);
+    return adaptiveCompress(bgCanvas);
+  };
 
   const allSendBtns = () => [drawSend, mdtSendBtn].filter(Boolean);
 
