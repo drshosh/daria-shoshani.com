@@ -1494,6 +1494,16 @@ button.mobile-nav-link {
 }
 
 @media (max-width: 768px) {
+  #archive {
+    padding-top: 3rem;
+    padding-bottom: 4rem;
+  }
+
+  #archive .section-head {
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
   .archive-content {
     align-items: flex-start;
   }
