@@ -824,7 +824,6 @@
     "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C.png",
     "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C11.png",
     "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C1111.png",
-    "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C111111.jpeg",
     "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C2.png",
     "Images/random%20image/2b72d435-98de-4783-ac96-668db4f59f94.jpeg",
     "Images/random%20image/3.png",
@@ -998,6 +997,10 @@
     "Images/random%20image/Schermata%202024-01-18%20alle%2018.30.06.png",
     "Images/random%20image/Screen%20Shot%202021-12-12%20at%2014.42.49.png",
     "Images/random%20image/Screensho3.png",
+    "Images/random%20image/Teaser%20Dancing.mp4",
+    "Images/random%20image/Teaser%20Shakehand.mp4",
+    "Images/random%20image/Teaser%20Split.mp4",
+    "Images/random%20image/Teaser%20scared.mp4",
     "Images/random%20image/Unbenanntes_Projekt%2811%29.png",
     "Images/random%20image/Unstable%20Realities_Maxxi_26.06.2024_Marta%20Ferro_200.jpg",
     "Images/random%20image/Unstable%20Realities_Maxxi_26.06.2024_Marta%20Ferro_208.jpg",
@@ -1020,6 +1023,7 @@
     "Images/random%20image/carborundum.png",
     "Images/random%20image/choose%20a%20door.jpg",
     "Images/random%20image/crop%20crop.jpeg",
+    "Images/random%20image/dance%20better%20q.mp4",
     "Images/random%20image/daria%20L2S_1.2.jpg",
     "Images/random%20image/daria%20LS_1.2.jpg",
     "Images/random%20image/daria%20LS_1.4.jpg",
@@ -1116,14 +1120,20 @@
 
   const FLICKER_POOL_SIZE = 14;
 
-  function pickPoolSrcs() {
-    const copy = shuffle([...ARCHIVE_IMAGES]);
-    return copy.slice(0, FLICKER_POOL_SIZE);
+  function isVideo(src) {
+    return /\.mp4$/i.test(src);
   }
 
-  // Preloads each src; resolves with the src on success, null on failure
+  // Images-only pool for the flicker animation
+  function pickPoolSrcs() {
+    const images = ARCHIVE_IMAGES.filter(s => !isVideo(s));
+    return shuffle([...images]).slice(0, FLICKER_POOL_SIZE);
+  }
+
+  // Preloads image srcs; resolves with src on success, null on failure (skips videos)
   function preload(srcs) {
     return Promise.all(srcs.map(src => new Promise(resolve => {
+      if (isVideo(src)) { resolve(src); return; }
       const i = new Image();
       i.onload  = () => resolve(src);
       i.onerror = () => resolve(null);
@@ -1131,7 +1141,23 @@
     })));
   }
 
-  function runFlicker(img, btn, pool, chosen) {
+  // Show image or video in the archive frame
+  function showMedia(img, video, src) {
+    if (isVideo(src)) {
+      img.style.display = 'none';
+      video.style.display = 'block';
+      video.src = src;
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+      video.removeAttribute('src');
+      video.style.display = 'none';
+      img.style.display = 'block';
+      img.src = src;
+    }
+  }
+
+  function runFlicker(img, video, btn, pool, chosen) {
     let frame = 0;
     const start = Date.now();
     const timer = setInterval(() => {
@@ -1139,7 +1165,7 @@
       frame++;
       if (Date.now() - start >= FLICKER_DURATION) {
         clearInterval(timer);
-        img.src = chosen;
+        showMedia(img, video, chosen);
         btn.disabled = false;
       }
     }, FLICKER_INTERVAL);
@@ -1156,14 +1182,15 @@
   }
 
   function initArchive() {
-    const img = document.getElementById('archive-img');
-    const btn = document.getElementById('archive-btn');
+    const img   = document.getElementById('archive-img');
+    const video = document.getElementById('archive-video');
+    const btn   = document.getElementById('archive-btn');
     if (!img || !btn || !ARCHIVE_IMAGES.length) return;
 
-    img.src = nextImage();
+    showMedia(img, video, nextImage());
 
-    // Silently warm the cache with a random 60-image batch so flicker is smooth
-    bgPreload(shuffle([...ARCHIVE_IMAGES]).slice(0, 60));
+    // Warm image cache in background (videos excluded)
+    bgPreload(shuffle([...ARCHIVE_IMAGES.filter(s => !isVideo(s))]).slice(0, 60));
 
     btn.addEventListener('click', () => {
       if (btn.disabled) return;
@@ -1176,7 +1203,7 @@
         const validPool = pool.filter(s => loaded.has(s));
         const validChosen = loaded.has(chosen) ? chosen : (validPool[0] || null);
         if (!validPool.length || !validChosen) { btn.disabled = false; return; }
-        runFlicker(img, btn, validPool, validChosen);
+        runFlicker(img, video, btn, validPool, validChosen);
       });
     });
   }
