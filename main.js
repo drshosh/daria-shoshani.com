@@ -200,37 +200,90 @@
   const exportDrawingAsPng = () => new Promise((resolve, reject) => {
     if (!drawGroup.querySelector('line')) { reject('empty'); return; }
 
-    const lines = drawGroup.querySelectorAll('line');
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    lines.forEach(line => {
-      const sw = (+line.getAttribute('stroke-width') || 8) / 2;
-      const x1 = +line.getAttribute('x1'), y1 = +line.getAttribute('y1');
-      const x2 = +line.getAttribute('x2'), y2 = +line.getAttribute('y2');
-      minX = Math.min(minX, x1 - sw, x2 - sw); maxX = Math.max(maxX, x1 + sw, x2 + sw);
-      minY = Math.min(minY, y1 - sw, y2 - sw); maxY = Math.max(maxY, y1 + sw, y2 + sw);
-    });
-    const pad = 28;
-    const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
-    const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
-    const vh = Math.min(window.innerHeight, maxY + pad) - vy;
-    const sc = Math.min(1, 1200 / Math.max(vw, vh));
-    const cw = Math.round(vw * sc), ch = Math.round(vh * sc);
-    const c = document.createElement('canvas');
-    c.width = cw; c.height = ch;
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, cw, ch);
-    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    lines.forEach(line => {
-      const x1 = (+line.getAttribute('x1') - vx) * sc;
-      const y1 = (+line.getAttribute('y1') - vy) * sc;
-      const x2 = (+line.getAttribute('x2') - vx) * sc;
-      const y2 = (+line.getAttribute('y2') - vy) * sc;
-      ctx.strokeStyle = line.getAttribute('stroke') || '#000';
-      ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * sc;
-      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    });
-    resolve(c.toDataURL('image/jpeg', 0.80));
+    const directExport = () => {
+      const lines = drawGroup.querySelectorAll('line');
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      lines.forEach(line => {
+        const sw = (+line.getAttribute('stroke-width') || 8) / 2;
+        const x1 = +line.getAttribute('x1'), y1 = +line.getAttribute('y1');
+        const x2 = +line.getAttribute('x2'), y2 = +line.getAttribute('y2');
+        minX = Math.min(minX, x1 - sw, x2 - sw); maxX = Math.max(maxX, x1 + sw, x2 + sw);
+        minY = Math.min(minY, y1 - sw, y2 - sw); maxY = Math.max(maxY, y1 + sw, y2 + sw);
+      });
+      const pad = 28;
+      const vx = Math.max(0, minX - pad), vy = Math.max(0, minY - pad);
+      const vw = Math.min(window.innerWidth,  maxX + pad) - vx;
+      const vh = Math.min(window.innerHeight, maxY + pad) - vy;
+      const sc = Math.min(1, 1200 / Math.max(vw, vh));
+      const cw = Math.round(vw * sc), ch = Math.round(vh * sc);
+      const c = document.createElement('canvas');
+      c.width = cw; c.height = ch;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, cw, ch);
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      lines.forEach(line => {
+        const x1 = (+line.getAttribute('x1') - vx) * sc;
+        const y1 = (+line.getAttribute('y1') - vy) * sc;
+        const x2 = (+line.getAttribute('x2') - vx) * sc;
+        const y2 = (+line.getAttribute('y2') - vy) * sc;
+        ctx.strokeStyle = line.getAttribute('stroke') || '#000';
+        ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * sc;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      });
+      resolve(c.toDataURL('image/jpeg', 0.80));
+    };
+
+    if (typeof html2canvas === 'undefined') { directExport(); return; }
+
+    drawPanel.style.visibility = 'hidden';
+    if (mdtToolbar)     mdtToolbar.style.visibility     = 'hidden';
+    if (mdtControlsBar) mdtControlsBar.style.visibility = 'hidden';
+
+    const restoreToolbars = () => {
+      drawPanel.style.visibility = '';
+      if (mdtToolbar)     mdtToolbar.style.visibility     = '';
+      if (mdtControlsBar) mdtControlsBar.style.visibility = '';
+    };
+
+    let settled = false;
+    const settle = (fn) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      restoreToolbars();
+      fn();
+    };
+    const timer = setTimeout(() => settle(directExport), 6000);
+
+    html2canvas(document.body, {
+      useCORS:     true,
+      logging:     false,
+      scale:       0.4,
+      x:           window.scrollX,
+      y:           window.scrollY,
+      width:       window.innerWidth,
+      height:      window.innerHeight,
+      windowWidth: window.innerWidth,
+      windowHeight:window.innerHeight,
+    }).then(canvas => {
+      settle(() => {
+        const scaleX = canvas.width  / window.innerWidth;
+        const scaleY = canvas.height / window.innerHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        drawGroup.querySelectorAll('line').forEach(line => {
+          const x1 = +line.getAttribute('x1') * scaleX;
+          const y1 = +line.getAttribute('y1') * scaleY;
+          const x2 = +line.getAttribute('x2') * scaleX;
+          const y2 = +line.getAttribute('y2') * scaleY;
+          ctx.strokeStyle = line.getAttribute('stroke') || '#000';
+          ctx.lineWidth   = (+line.getAttribute('stroke-width') || 8) * Math.min(scaleX, scaleY);
+          ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        });
+        resolve(canvas.toDataURL('image/jpeg', 0.80));
+      });
+    }).catch(() => settle(directExport));
   });
 
   const allSendBtns = () => [drawSend, mdtSendBtn].filter(Boolean);
@@ -486,9 +539,15 @@
     };
 
     if (countdownVideo) {
-      countdownVideo.play().catch(() => { videoEnded = true; tryHide(); });
-      countdownVideo.addEventListener('ended',  () => { videoEnded = true;  tryHide(); });
-      countdownVideo.addEventListener('error',  () => { videoEnded = true;  tryHide(); });
+      countdownVideo.play().catch(() => {
+        countdownOverlay.style.cursor = 'pointer';
+        countdownOverlay.addEventListener('click', () => {
+          countdownOverlay.style.cursor = '';
+          countdownVideo.play();
+        }, { once: true });
+      });
+      countdownVideo.addEventListener('ended', () => { videoEnded = true; tryHide(); });
+      countdownVideo.addEventListener('error', () => { videoEnded = true; tryHide(); });
     } else {
       videoEnded = true;
     }
