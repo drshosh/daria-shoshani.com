@@ -1087,12 +1087,12 @@
     "Images/random%20image/%D7%A4%D7%97%D7%95%D7%AA%20%D7%9B%D7%91%D7%93.jpg",
     "Images/random%20image/%D7%A5.jpg",
     "Images/random%20image/%D7%AA.jpg",
-    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202023-12-17%20%D7%91%D7%A9%D7%A2%D7%94%2021.42.44_806c6bca.jpg",
-    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-06-19%20%D7%91%D7%A9%D7%A2%D7%94%2017.04.06_48ba1629.jpg",
-    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.53_33f817a8.jpg",
-    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.53_95380b24.jpg",
-    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.57_a696bf18.jpg",
-    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%E2%80%8F%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.58_2b6095d6.jpg"
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%202023-12-17%20%D7%91%D7%A9%D7%A2%D7%94%2021.42.44_806c6bca.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%202025-06-19%20%D7%91%D7%A9%D7%A2%D7%94%2017.04.06_48ba1629.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.53_33f817a8.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.53_95380b24.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.57_a696bf18.jpg",
+    "Images/random%20image/%D7%AA%D7%9E%D7%95%D7%A0%D7%94%20%D7%A9%D7%9C%20WhatsApp%202025-09-24%20%D7%91%D7%A9%D7%A2%D7%94%2015.40.58_2b6095d6.jpg"
   ];
 
   function shuffle(arr) {
@@ -1119,6 +1119,16 @@
   function pickPoolSrcs() {
     const copy = shuffle([...ARCHIVE_IMAGES]);
     return copy.slice(0, FLICKER_POOL_SIZE);
+  }
+
+  // Preloads each src; resolves with the src on success, null on failure
+  function preload(srcs) {
+    return Promise.all(srcs.map(src => new Promise(resolve => {
+      const i = new Image();
+      i.onload  = () => resolve(src);
+      i.onerror = () => resolve(null);
+      i.src = src;
+    })));
   }
 
   function runFlicker(img, btn, pool, chosen) {
@@ -1158,7 +1168,16 @@
     btn.addEventListener('click', () => {
       if (btn.disabled) return;
       btn.disabled = true;
-      runFlicker(img, btn, pickPoolSrcs(), nextImage());
+      const chosen = nextImage();
+      const pool = pickPoolSrcs();
+
+      preload([...pool, chosen]).then(results => {
+        const loaded = new Set(results.filter(Boolean));
+        const validPool = pool.filter(s => loaded.has(s));
+        const validChosen = loaded.has(chosen) ? chosen : (validPool[0] || null);
+        if (!validPool.length || !validChosen) { btn.disabled = false; return; }
+        runFlicker(img, btn, validPool, validChosen);
+      });
     });
   }
 
