@@ -1437,13 +1437,18 @@ button.mobile-nav-link {
 
 /* ── ARCHIVE ── */
 #archive {
-  padding: 8rem 3rem;
+  padding: 10rem 3rem;
+}
+
+#archive .section-head {
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 
 .archive-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 3rem;
 }
 
@@ -1486,6 +1491,10 @@ button.mobile-nav-link {
 }
 
 @media (max-width: 768px) {
+  .archive-content {
+    align-items: flex-start;
+  }
+
   .archive-frame {
     max-width: 90vw;
     height: 55vh;
