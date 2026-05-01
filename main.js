@@ -724,7 +724,7 @@
   const FLICKER_INTERVAL = 80;
   const FLICKER_DURATION = 1000;
 
-  const ARCHIVE_IMAGES = [
+    const ARCHIVE_IMAGES = [
     "Images/random%20image/01F904CF-3D5E-4202-BB6F-BC02CAC18324.jpg",
     "Images/random%20image/040644B0-F134-4C9E-8FC9-B4D6EECFDF79.jpg",
     "Images/random%20image/084B03A6-4E59-4113-B6CD-6C59B5A03CD0.jpg",

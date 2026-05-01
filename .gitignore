@@ -1,5 +1,6 @@
 .DS_Store
 *.dmg
 refrences/
-Images/random image/
+Images/random image/_needs_conversion/
+Images/random image/*.mp4
 .claude/
