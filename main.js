@@ -539,6 +539,9 @@
     };
 
     if (countdownVideo) {
+      countdownVideo.muted = true;
+      countdownVideo.setAttribute('playsinline', '');
+      countdownVideo.setAttribute('webkit-playsinline', '');
       countdownVideo.play().catch(() => {
         countdownOverlay.style.cursor = 'pointer';
         countdownOverlay.addEventListener('click', () => {
@@ -780,8 +783,8 @@
 
 // ── ARCHIVE LOTTERY ──
 (function () {
-  const FLICKER_INTERVAL = 80;
-  const FLICKER_DURATION = 1000;
+  const FLICKER_INTERVAL = 50;
+  const FLICKER_DURATION = 1200;
 
     const ARCHIVE_IMAGES = [
     "Images/random%20image/01F904CF-3D5E-4202-BB6F-BC02CAC18324.jpg",
@@ -1113,11 +1116,8 @@
   const FLICKER_POOL_SIZE = 14;
 
   function pickPoolSrcs() {
-    const pool = [];
-    const copy = [...ARCHIVE_IMAGES];
-    shuffle(copy);
-    for (let i = 0; i < FLICKER_POOL_SIZE && i < copy.length; i++) pool.push(copy[i]);
-    return pool;
+    const copy = shuffle([...ARCHIVE_IMAGES]);
+    return copy.slice(0, FLICKER_POOL_SIZE);
   }
 
   function runFlicker(img, btn, pool, chosen) {
@@ -1134,12 +1134,25 @@
     }, FLICKER_INTERVAL);
   }
 
+  function bgPreload(srcs) {
+    let i = 0;
+    const next = () => { if (i < srcs.length) { new Image().src = srcs[i++]; setTimeout(next, 30); } };
+    if (typeof requestIdleCallback !== 'undefined') {
+      requestIdleCallback(next);
+    } else {
+      setTimeout(next, 1500);
+    }
+  }
+
   function initArchive() {
     const img = document.getElementById('archive-img');
     const btn = document.getElementById('archive-btn');
     if (!img || !btn || !ARCHIVE_IMAGES.length) return;
 
     img.src = nextImage();
+
+    // Silently warm the cache with a random 60-image batch so flicker is smooth
+    bgPreload(shuffle([...ARCHIVE_IMAGES]).slice(0, 60));
 
     btn.addEventListener('click', () => {
       if (btn.disabled) return;
