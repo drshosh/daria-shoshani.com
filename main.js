@@ -199,19 +199,19 @@
 
   // --- DRAWING EXPORT HELPERS ---
 
+  // Returns true only if every sampled pixel is pure white — genuine blank render.
+  // A white-background page with any text or imagery will have at least one non-white pixel.
   const isBlankCanvas = (canvas) => {
     const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    const step = Math.max(1, Math.floor(Math.min(W, H) / 7));
-    let whiteCount = 0, total = 0;
-    for (let y = step; y < H - step; y += step) {
-      for (let x = step; x < W - step; x += step) {
+    const { width: W, height: H } = canvas;
+    const step = Math.max(2, Math.floor(Math.min(W, H) / 20));
+    for (let y = 0; y < H; y += step) {
+      for (let x = 0; x < W; x += step) {
         const d = ctx.getImageData(x, y, 1, 1).data;
-        if (d[0] > 250 && d[1] > 250 && d[2] > 250) whiteCount++;
-        total++;
+        if (d[0] < 252 || d[1] < 252 || d[2] < 252) return false;
       }
     }
-    return total === 0 || (whiteCount / total) > 0.95;
+    return true;
   };
 
   const loadImg = (src, ms = 2000) => new Promise(res => {
@@ -251,16 +251,29 @@
     const clamp = r => ({ left: Math.max(0, r.left), top: Math.max(0, r.top),
                           width: Math.min(VW, r.right) - Math.max(0, r.left),
                           height: Math.min(VH, r.bottom) - Math.max(0, r.top) });
+    // Draw the visible portion of an image correctly, even when partially off-screen
+    const drawVisible = (img, rect) => {
+      const visL = Math.max(0, rect.left), visT = Math.max(0, rect.top);
+      const visR = Math.min(VW, rect.right), visB = Math.min(VH, rect.bottom);
+      const visW = visR - visL, visH = visB - visT;
+      if (visW <= 0 || visH <= 0) return;
+      const rx = img.naturalWidth  / rect.width;
+      const ry = img.naturalHeight / rect.height;
+      ctx.drawImage(img,
+        (visL - rect.left) * rx, (visT - rect.top) * ry, visW * rx, visH * ry,
+        visL * sc, visT * sc, visW * sc, visH * sc);
+    };
+
     for (const el of document.querySelectorAll('*')) {
       if (el.matches(SKIP) || el.closest(SKIP)) continue;
       const rect = el.getBoundingClientRect();
       if (!inVP(rect)) continue;
-      const r = clamp(rect);
       try {
         if (el.tagName === 'IMG' && el.complete && el.naturalWidth > 0) {
           const img = await loadImg(el.currentSrc || el.src);
-          if (img) ctx.drawImage(img, r.left * sc, r.top * sc, r.width * sc, r.height * sc);
+          if (img) drawVisible(img, rect);
         } else if (el.tagName === 'VIDEO') {
+          const r = clamp(rect);
           try { ctx.drawImage(el, r.left * sc, r.top * sc, r.width * sc, r.height * sc); } catch (e) {}
         } else {
           const bgImg = getComputedStyle(el).backgroundImage;
@@ -268,8 +281,8 @@
             const m = bgImg.match(/url\(["']?([^"')]+)["']?\)/);
             if (m) {
               const img = await loadImg(m[1]);
-              if (getComputedStyle(el).backgroundSize.includes('cover')) drawCover(ctx, img, r, sc);
-              else if (img) ctx.drawImage(img, r.left * sc, r.top * sc, r.width * sc, r.height * sc);
+              if (getComputedStyle(el).backgroundSize.includes('cover')) drawCover(ctx, img, clamp(rect), sc);
+              else if (img) drawVisible(img, rect);
             }
           }
         }
@@ -333,29 +346,41 @@
     return strokesOnlyExport();
   };
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
   const exportDrawingAsPng = async () => {
     if (!drawGroup.querySelector('line')) throw 'empty';
 
     const VW = window.innerWidth, VH = window.innerHeight;
+    const scrollX = window.scrollX || window.pageXOffset;
+    const scrollY = window.scrollY || window.pageYOffset;
     const sc = Math.min(1, 900 / Math.max(VW, VH));
 
     const toHide = [drawPanel, mdtToolbar, mdtControlsBar].filter(Boolean);
     toHide.forEach(el => el.style.visibility = 'hidden');
 
     let bgCanvas = null;
-    try {
-      if (typeof htmlToImage !== 'undefined') {
+
+    // Tier 1: html-to-image (skip on iOS — known to produce blank results there)
+    if (!isIOS && typeof htmlToImage !== 'undefined') {
+      try {
         const FILTER_IDS = new Set(['draw-panel', 'mobile-draw-toolbar', 'mdt-controls-bar', 'draw-svg', 'draw-toast', 'countdown-overlay', 'site-nav']);
         const filter = node => !(node.id && FILTER_IDS.has(node.id)) &&
                                !(node.classList && node.classList.contains('draw-panel'));
-        bgCanvas = await Promise.race([
-          htmlToImage.toCanvas(document.body, { filter, useCORS: true, cacheBust: true, width: VW, height: VH }),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000)),
+        // Render the full page (no width/height — those would crop to y=0, missing the scroll position)
+        const fullPage = await Promise.race([
+          htmlToImage.toCanvas(document.body, { filter, useCORS: false, cacheBust: false, pixelRatio: 1 }),
+          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 12000)),
         ]);
-        if (isBlankCanvas(bgCanvas)) bgCanvas = null;
-      }
-    } catch (e) { bgCanvas = null; }
+        // Crop to the visible viewport using the current scroll position
+        const crop = document.createElement('canvas');
+        crop.width = VW; crop.height = VH;
+        crop.getContext('2d').drawImage(fullPage, scrollX, scrollY, VW, VH, 0, 0, VW, VH);
+        if (!isBlankCanvas(crop)) bgCanvas = crop;
+      } catch (e) { bgCanvas = null; }
+    }
 
+    // Tier 2: DOM image extraction (fallback, or primary on iOS)
     if (!bgCanvas) {
       bgCanvas = await domImageCapture(VW, VH, sc);
     } else if (sc < 1) {
