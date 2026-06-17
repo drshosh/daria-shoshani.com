@@ -678,12 +678,24 @@
   if (heroMobileVideo) heroMobileVideo.play().catch(() => {});
 
   // --- LIGHTBOX ---
-  const lightbox  = document.getElementById('lightbox');
-  const lbMedia   = document.getElementById('lb-media');
-  const lbCounter = document.getElementById('lb-counter');
-  const lbClose   = document.getElementById('lb-close');
-  const lbPrev    = document.getElementById('lb-prev');
-  const lbNext    = document.getElementById('lb-next');
+  const lightbox   = document.getElementById('lightbox');
+  const lbMedia    = document.getElementById('lb-media');
+  const lbCounter  = document.getElementById('lb-counter');
+  const lbCaption  = document.getElementById('lb-caption');
+  const lbClose    = document.getElementById('lb-close');
+  const lbPrev     = document.getElementById('lb-prev');
+  const lbNext     = document.getElementById('lb-next');
+
+  // Parse "Title--Year--Dimensions--01.jpg" → "Title / Year / Dimensions"
+  // Files without '--' return '' so the caption stays hidden.
+  const captionFromSrc = (src) => {
+    const name = src.split('/').pop().replace(/\.[^.]+$/, '');
+    if (!name.includes('--')) return '';
+    const parts = name.split('--');
+    if (/^\d+$/.test(parts[parts.length - 1])) parts.pop();
+    if (/^\d+$/.test(parts[0])) parts.shift();
+    return parts.join(' / ');
+  };
 
   let lbImages = [];
   let lbIndex  = 0;
@@ -724,6 +736,7 @@
       img.src = src; // hits HTTP cache if preloaded
       lbMedia.appendChild(img);
     }
+    lbCaption.textContent = captionFromSrc(lbImages[lbIndex]);
     lbCounter.textContent = lbImages.length > 1 ? (lbIndex + 1) + ' / ' + lbImages.length : '';
     lbPrev.style.visibility = lbImages.length > 1 ? 'visible' : 'hidden';
     lbNext.style.visibility = lbImages.length > 1 ? 'visible' : 'hidden';
