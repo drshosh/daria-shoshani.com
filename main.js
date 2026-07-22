@@ -268,11 +268,16 @@
     toHide.forEach(el => el.style.visibility = 'hidden');
     drawSvg.style.visibility = 'hidden';
 
-    let bgCanvas;
+    let bgCanvas = null;
     try {
       const fullCanvas = await htmlToImage.toCanvas(document.body, {
         pixelRatio: sc,
-        filter: el => !(el.id && skipIds.has(el.id)),
+        skipFonts: true,
+        filter: el => {
+          if (el.id && skipIds.has(el.id)) return false;
+          if (el.tagName === 'VIDEO') return false;
+          return true;
+        },
         backgroundColor: getComputedStyle(document.body).backgroundColor || '#fff',
       });
 
@@ -282,13 +287,18 @@
       const bctx = bgCanvas.getContext('2d');
       const srcY = Math.min(Math.round(scrollY * sc), Math.max(0, fullCanvas.height - bgCanvas.height));
       bctx.drawImage(fullCanvas, 0, srcY, bgCanvas.width, bgCanvas.height, 0, 0, bgCanvas.width, bgCanvas.height);
+    } catch (e) {
+      console.warn('[draw-export] page capture failed, falling back to strokes only:', e);
     } finally {
       toHide.forEach(el => el.style.visibility = '');
       drawSvg.style.visibility = '';
     }
 
-    stampStrokes(bgCanvas, sc);
-    return adaptiveCompress(bgCanvas);
+    if (bgCanvas) {
+      stampStrokes(bgCanvas, sc);
+      return adaptiveCompress(bgCanvas);
+    }
+    return strokesOnlyExport();
   };
 
   const allSendBtns = () => [drawSend, mdtSendBtn].filter(Boolean);
