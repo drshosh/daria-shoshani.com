@@ -270,12 +270,14 @@
 
     let bgCanvas = null;
     try {
+      // Exclude IMG and VIDEO from html-to-image so the SVG stays small enough
+      // for Chrome to render. We draw images on top separately via fetch+blob.
       const fullCanvas = await htmlToImage.toCanvas(document.body, {
         pixelRatio: sc,
         skipFonts: true,
         filter: el => {
           if (el.id && skipIds.has(el.id)) return false;
-          if (el.tagName === 'VIDEO') return false;
+          if (el.tagName === 'VIDEO' || el.tagName === 'IMG') return false;
           return true;
         },
         backgroundColor: getComputedStyle(document.body).backgroundColor || '#fff',
@@ -287,9 +289,27 @@
       const bctx = bgCanvas.getContext('2d');
       const srcY = Math.min(Math.round(scrollY * sc), Math.max(0, fullCanvas.height - bgCanvas.height));
       bctx.drawImage(fullCanvas, 0, srcY, bgCanvas.width, bgCanvas.height, 0, 0, bgCanvas.width, bgCanvas.height);
+
+      // Draw visible <img> elements via fetch+blob (same-origin, no canvas taint)
+      const inVP = r => r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < VH && r.right > 0 && r.left < VW;
+      for (const img of document.querySelectorAll('img')) {
+        if ([...skipIds].some(id => img.closest('#' + id))) continue;
+        const r = img.getBoundingClientRect();
+        if (!inVP(r)) continue;
+        try {
+          const resp = await fetch(img.currentSrc || img.src);
+          const blob = await resp.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          await new Promise(res => {
+            const i = new Image();
+            i.onload = () => { bctx.drawImage(i, r.left * sc, r.top * sc, r.width * sc, r.height * sc); URL.revokeObjectURL(blobUrl); res(); };
+            i.onerror = () => { URL.revokeObjectURL(blobUrl); res(); };
+            i.src = blobUrl;
+          });
+        } catch {}
+      }
     } catch (e) {
       console.warn('[draw-export] page capture failed, falling back to strokes only:', e);
-      showToast('⚠ Capture failed: ' + (e?.message || String(e)), 10000);
     } finally {
       toHide.forEach(el => el.style.visibility = '');
       drawSvg.style.visibility = '';
