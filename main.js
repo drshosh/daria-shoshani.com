@@ -272,10 +272,7 @@
         if (el.tagName === 'IMG' && el.complete && el.naturalWidth > 0) {
           const img = await loadImg(el.currentSrc || el.src);
           if (img) drawVisible(img, rect);
-        } else if (el.tagName === 'VIDEO') {
-          const r = clamp(rect);
-          try { ctx.drawImage(el, r.left * sc, r.top * sc, r.width * sc, r.height * sc); } catch (e) {}
-        } else {
+        } else if (el.tagName !== 'VIDEO') {
           const bgImg = getComputedStyle(el).backgroundImage;
           if (bgImg && bgImg !== 'none') {
             const m = bgImg.match(/url\(["']?([^"')]+)["']?\)/);
@@ -346,50 +343,16 @@
     return strokesOnlyExport();
   };
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
   const exportDrawingAsPng = async () => {
     if (!drawGroup.querySelector('line')) throw 'empty';
 
     const VW = window.innerWidth, VH = window.innerHeight;
-    const scrollX = window.scrollX || window.pageXOffset;
-    const scrollY = window.scrollY || window.pageYOffset;
     const sc = Math.min(1, 900 / Math.max(VW, VH));
 
     const toHide = [drawPanel, mdtToolbar, mdtControlsBar].filter(Boolean);
     toHide.forEach(el => el.style.visibility = 'hidden');
 
-    let bgCanvas = null;
-
-    // Tier 1: html-to-image (skip on iOS — known to produce blank results there)
-    if (!isIOS && typeof htmlToImage !== 'undefined') {
-      try {
-        const FILTER_IDS = new Set(['draw-panel', 'mobile-draw-toolbar', 'mdt-controls-bar', 'draw-svg', 'draw-toast', 'countdown-overlay', 'site-nav']);
-        const filter = node => !(node.id && FILTER_IDS.has(node.id)) &&
-                               !(node.classList && node.classList.contains('draw-panel'));
-        // Render the full page (no width/height — those would crop to y=0, missing the scroll position)
-        const fullPage = await Promise.race([
-          htmlToImage.toCanvas(document.body, { filter, useCORS: false, cacheBust: false, pixelRatio: 1 }),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 12000)),
-        ]);
-        // Crop to the visible viewport using the current scroll position
-        const crop = document.createElement('canvas');
-        crop.width = VW; crop.height = VH;
-        crop.getContext('2d').drawImage(fullPage, scrollX, scrollY, VW, VH, 0, 0, VW, VH);
-        if (!isBlankCanvas(crop)) bgCanvas = crop;
-      } catch (e) { bgCanvas = null; }
-    }
-
-    // Tier 2: DOM image extraction (fallback, or primary on iOS)
-    if (!bgCanvas) {
-      bgCanvas = await domImageCapture(VW, VH, sc);
-    } else if (sc < 1) {
-      const scaled = document.createElement('canvas');
-      scaled.width  = Math.round(VW * sc);
-      scaled.height = Math.round(VH * sc);
-      scaled.getContext('2d').drawImage(bgCanvas, 0, 0, scaled.width, scaled.height);
-      bgCanvas = scaled;
-    }
+    const bgCanvas = await domImageCapture(VW, VH, sc);
 
     toHide.forEach(el => el.style.visibility = '');
     stampStrokes(bgCanvas, sc);
