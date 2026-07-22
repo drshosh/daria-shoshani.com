@@ -199,95 +199,6 @@
 
   // --- DRAWING EXPORT HELPERS ---
 
-  // Returns true only if every sampled pixel is pure white — genuine blank render.
-  // A white-background page with any text or imagery will have at least one non-white pixel.
-  const isBlankCanvas = (canvas) => {
-    const ctx = canvas.getContext('2d');
-    const { width: W, height: H } = canvas;
-    const step = Math.max(2, Math.floor(Math.min(W, H) / 20));
-    for (let y = 0; y < H; y += step) {
-      for (let x = 0; x < W; x += step) {
-        const d = ctx.getImageData(x, y, 1, 1).data;
-        if (d[0] < 252 || d[1] < 252 || d[2] < 252) return false;
-      }
-    }
-    return true;
-  };
-
-  const loadImg = (src, ms = 2000) => new Promise(res => {
-    if (!src) return res(null);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    const t = setTimeout(() => res(null), ms);
-    img.onload  = () => { clearTimeout(t); res(img); };
-    img.onerror = () => { clearTimeout(t); res(null); };
-    img.src = src;
-  });
-
-  const drawCover = (ctx, img, r, sc) => {
-    if (!img || r.width <= 0 || r.height <= 0) return;
-    const ir = img.naturalWidth / img.naturalHeight;
-    const br = r.width / r.height;
-    let sw, sh;
-    if (ir > br) { sh = r.height; sw = r.height * ir; }
-    else         { sw = r.width;  sh = r.width  / ir; }
-    const sx = (r.width - sw) / 2, sy = (r.height - sh) / 2;
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(r.left * sc, r.top * sc, r.width * sc, r.height * sc);
-    ctx.clip();
-    ctx.drawImage(img, (r.left + sx) * sc, (r.top + sy) * sc, sw * sc, sh * sc);
-    ctx.restore();
-  };
-
-  const domImageCapture = async (VW, VH, sc) => {
-    const c = document.createElement('canvas');
-    c.width = Math.round(VW * sc); c.height = Math.round(VH * sc);
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = getComputedStyle(document.body).backgroundColor || '#fff';
-    ctx.fillRect(0, 0, c.width, c.height);
-    const SKIP = '#draw-svg,#draw-panel,#mobile-draw-toolbar,#mdt-controls-bar,#site-nav,#countdown-overlay,#draw-toast,script,style,link';
-    const inVP  = r => r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < VH && r.right > 0 && r.left < VW;
-    const clamp = r => ({ left: Math.max(0, r.left), top: Math.max(0, r.top),
-                          width: Math.min(VW, r.right) - Math.max(0, r.left),
-                          height: Math.min(VH, r.bottom) - Math.max(0, r.top) });
-    // Draw the visible portion of an image correctly, even when partially off-screen
-    const drawVisible = (img, rect) => {
-      const visL = Math.max(0, rect.left), visT = Math.max(0, rect.top);
-      const visR = Math.min(VW, rect.right), visB = Math.min(VH, rect.bottom);
-      const visW = visR - visL, visH = visB - visT;
-      if (visW <= 0 || visH <= 0) return;
-      const rx = img.naturalWidth  / rect.width;
-      const ry = img.naturalHeight / rect.height;
-      ctx.drawImage(img,
-        (visL - rect.left) * rx, (visT - rect.top) * ry, visW * rx, visH * ry,
-        visL * sc, visT * sc, visW * sc, visH * sc);
-    };
-
-    for (const el of document.querySelectorAll('*')) {
-      if (el.matches(SKIP) || el.closest(SKIP)) continue;
-      const rect = el.getBoundingClientRect();
-      if (!inVP(rect)) continue;
-      try {
-        if (el.tagName === 'IMG' && el.complete && el.naturalWidth > 0) {
-          const img = await loadImg(el.currentSrc || el.src);
-          if (img) drawVisible(img, rect);
-        } else if (el.tagName !== 'VIDEO') {
-          const bgImg = getComputedStyle(el).backgroundImage;
-          if (bgImg && bgImg !== 'none') {
-            const m = bgImg.match(/url\(["']?([^"')]+)["']?\)/);
-            if (m) {
-              const img = await loadImg(m[1]);
-              if (getComputedStyle(el).backgroundSize.includes('cover')) drawCover(ctx, img, clamp(rect), sc);
-              else if (img) drawVisible(img, rect);
-            }
-          }
-        }
-      } catch (e) {}
-    }
-    return c;
-  };
-
   const stampStrokes = (canvas, sc) => {
     const ctx = canvas.getContext('2d');
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
@@ -347,14 +258,35 @@
     if (!drawGroup.querySelector('line')) throw 'empty';
 
     const VW = window.innerWidth, VH = window.innerHeight;
+    const scrollY = window.scrollY;
     const sc = Math.min(1, 900 / Math.max(VW, VH));
+
+    const skipIds = new Set(['draw-svg', 'draw-panel', 'mobile-draw-toolbar',
+                             'mdt-controls-bar', 'site-nav', 'countdown-overlay', 'draw-toast']);
 
     const toHide = [drawPanel, mdtToolbar, mdtControlsBar].filter(Boolean);
     toHide.forEach(el => el.style.visibility = 'hidden');
+    drawSvg.style.visibility = 'hidden';
 
-    const bgCanvas = await domImageCapture(VW, VH, sc);
+    let bgCanvas;
+    try {
+      const fullCanvas = await htmlToImage.toCanvas(document.body, {
+        pixelRatio: sc,
+        filter: el => !(el.id && skipIds.has(el.id)),
+        backgroundColor: getComputedStyle(document.body).backgroundColor || '#fff',
+      });
 
-    toHide.forEach(el => el.style.visibility = '');
+      bgCanvas = document.createElement('canvas');
+      bgCanvas.width  = Math.round(VW * sc);
+      bgCanvas.height = Math.round(VH * sc);
+      const bctx = bgCanvas.getContext('2d');
+      const srcY = Math.min(Math.round(scrollY * sc), Math.max(0, fullCanvas.height - bgCanvas.height));
+      bctx.drawImage(fullCanvas, 0, srcY, bgCanvas.width, bgCanvas.height, 0, 0, bgCanvas.width, bgCanvas.height);
+    } finally {
+      toHide.forEach(el => el.style.visibility = '');
+      drawSvg.style.visibility = '';
+    }
+
     stampStrokes(bgCanvas, sc);
     return adaptiveCompress(bgCanvas);
   };
