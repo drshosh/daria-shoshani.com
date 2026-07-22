@@ -342,7 +342,7 @@
       if (err === 'empty') {
         showToast('Draw something first!');
       } else {
-        showToast('Could not send — try again.');
+        showToast('Error: ' + (err?.message || String(err)), 10000);
         console.error('[draw-send]', err);
       }
     } finally {
