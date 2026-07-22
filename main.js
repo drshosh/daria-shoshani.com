@@ -189,11 +189,13 @@
 
   const uploadToImgBB = async (dataUrl) => {
     const base64 = dataUrl.split(',')[1];
-    const body = new URLSearchParams({ key: IMGBB_API_KEY, image: base64 });
-    const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body });
+    const form = new FormData();
+    form.append('key', IMGBB_API_KEY);
+    form.append('image', base64);
+    const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form });
     if (!res.ok) throw new Error('ImgBB ' + res.status);
     const json = await res.json();
-    if (!json.success) throw new Error('ImgBB upload failed');
+    if (!json.success) throw new Error('ImgBB: ' + (json.error?.message || 'upload failed'));
     return json.data.url;
   };
 
