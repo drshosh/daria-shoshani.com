@@ -183,8 +183,19 @@
   const EMAILJS_PUBLIC_KEY  = '3d4DIAcuJXfWIj9G4';
   const EMAILJS_SERVICE_ID  = 'service_jkxfbys';
   const EMAILJS_TEMPLATE_ID = 'template_k0zrdkw';
+  const IMGBB_API_KEY       = '0523195c68e33a5583ff36fa0f50b5af';
 
   if (typeof emailjs !== 'undefined') emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+  const uploadToImgBB = async (dataUrl) => {
+    const base64 = dataUrl.split(',')[1];
+    const body = new URLSearchParams({ key: IMGBB_API_KEY, image: base64 });
+    const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body });
+    if (!res.ok) throw new Error('ImgBB ' + res.status);
+    const json = await res.json();
+    if (!json.success) throw new Error('ImgBB upload failed');
+    return json.data.url;
+  };
 
   const drawSend  = document.getElementById('draw-send');
   const drawToast = document.getElementById('draw-toast');
@@ -259,7 +270,7 @@
 
     const VW = window.innerWidth, VH = window.innerHeight;
     const scrollY = window.scrollY;
-    const sc = Math.min(1, 900 / Math.max(VW, VH));
+    const sc = Math.min(1, 1200 / Math.max(VW, VH));
 
     const skipIds = new Set(['draw-svg', 'draw-panel', 'mobile-draw-toolbar',
                              'mdt-controls-bar', 'site-nav', 'countdown-overlay', 'draw-toast']);
@@ -317,7 +328,7 @@
 
     if (bgCanvas) {
       stampStrokes(bgCanvas, sc);
-      return adaptiveCompress(bgCanvas);
+      return bgCanvas.toDataURL('image/jpeg', 0.88);
     }
     return strokesOnlyExport();
   };
@@ -332,9 +343,10 @@
     allSendBtns().forEach(b => { b.textContent = 'Sending\u2026'; b.disabled = true; });
     try {
       const dataUrl = await exportDrawingAsPng();
+      const imgUrl  = await uploadToImgBB(dataUrl);
       if (typeof emailjs === 'undefined') throw new Error('emailjs not loaded');
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        drawing:   dataUrl,
+        drawing:   imgUrl,
         timestamp: new Date().toLocaleString()
       });
       showToast('Sent anonymously!', 6000);
@@ -342,7 +354,7 @@
       if (err === 'empty') {
         showToast('Draw something first!');
       } else {
-        showToast('Error: ' + (err?.message || String(err)), 10000);
+        showToast('Could not send — try again.');
         console.error('[draw-send]', err);
       }
     } finally {
