@@ -349,7 +349,7 @@
         drawing:   imgUrl,
         timestamp: new Date().toLocaleString()
       });
-      showToast('Sent anonymously!', 6000);
+      showToast('Sent! ' + imgUrl, 12000);
     } catch (err) {
       if (err === 'empty') {
         showToast('Draw something first!');
