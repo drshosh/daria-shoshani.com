@@ -188,10 +188,16 @@
   if (typeof emailjs !== 'undefined') emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
   const uploadToImgBB = async (dataUrl) => {
-    const base64 = dataUrl.split(',')[1];
+    const [header, b64] = dataUrl.split(',');
+    const mime = header.match(/:(.*?);/)[1];
+    const binary = atob(b64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob = new Blob([bytes], { type: mime });
+
     const form = new FormData();
     form.append('key', IMGBB_API_KEY);
-    form.append('image', base64);
+    form.append('image', blob, 'drawing.jpg');
     const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form });
     if (!res.ok) throw new Error('ImgBB ' + res.status);
     const json = await res.json();
