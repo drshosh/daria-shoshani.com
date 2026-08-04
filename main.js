@@ -328,13 +328,12 @@
         } catch {}
       }
     } catch (e) {
-      console.error('[draw-export] page capture failed, falling back to strokes only:', e);
+      console.warn('[draw-export] page capture failed, falling back to strokes only:', e);
     } finally {
       toHide.forEach(el => el.style.visibility = '');
       drawSvg.style.visibility = '';
     }
 
-    console.log('[draw-export] path:', bgCanvas ? 'full-capture' : 'strokes-only');
     if (bgCanvas) {
       stampStrokes(bgCanvas, sc);
       return bgCanvas.toDataURL('image/jpeg', 0.88);
@@ -358,7 +357,7 @@
         drawing:   imgUrl,
         timestamp: new Date().toLocaleString()
       });
-      showToast('Sent! ' + imgUrl, 12000);
+      showToast('Sent!');
     } catch (err) {
       if (err === 'empty') {
         showToast('Draw something first!');
