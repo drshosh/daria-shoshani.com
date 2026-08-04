@@ -202,7 +202,6 @@
     if (!res.ok) throw new Error('ImgBB ' + res.status);
     const json = await res.json();
     if (!json.success) throw new Error('ImgBB: ' + (json.error?.message || 'upload failed'));
-    console.log('[imgbb-response]', JSON.stringify(json.data, null, 2));
     return json.data.url;
   };
 
