@@ -278,7 +278,14 @@
 
     const VW = window.innerWidth, VH = window.innerHeight;
     const scrollY = window.scrollY;
-    const sc = Math.min(window.devicePixelRatio || 1, 2);
+    // Cap effective pixel ratio so the SVG stays under Chrome's foreignObject
+    // rendering limit (~4000px/side). Prefer Retina density when the page is
+    // short enough to allow it; otherwise scale down so text still renders.
+    const bodyH = Math.max(document.body.offsetHeight, VH);
+    const bodyW = Math.max(document.body.offsetWidth,  VW);
+    const SAFE_MAX = 3500;
+    const capBySize = Math.min(SAFE_MAX / bodyW, SAFE_MAX / bodyH);
+    const sc = Math.min(window.devicePixelRatio || 1, 2, capBySize);
 
     const skipIds = new Set(['draw-svg', 'draw-panel', 'mobile-draw-toolbar',
                              'mdt-controls-bar', 'site-nav', 'countdown-overlay', 'draw-toast']);
