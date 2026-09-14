@@ -296,7 +296,6 @@
         pixelRatio: sc,
         width: VW,
         height: VH,
-        skipFonts: true,
         style: {
           transform: `translateY(-${scrollY}px)`,
           transformOrigin: 'top left',
