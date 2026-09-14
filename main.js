@@ -330,6 +330,7 @@
       }
     } catch (e) {
       console.warn('[draw-export] page capture failed, falling back to strokes only:', e);
+      showToast('Capture failed: ' + (e?.message || String(e)), 10000);
     } finally {
       toHide.forEach(el => el.style.visibility = '');
       drawSvg.style.visibility = '';
