@@ -278,14 +278,7 @@
 
     const VW = window.innerWidth, VH = window.innerHeight;
     const scrollY = window.scrollY;
-    // Cap effective pixel ratio so the SVG stays under Chrome's foreignObject
-    // rendering limit (~4000px/side). Prefer Retina density when the page is
-    // short enough to allow it; otherwise scale down so text still renders.
-    const bodyH = Math.max(document.body.offsetHeight, VH);
-    const bodyW = Math.max(document.body.offsetWidth,  VW);
-    const SAFE_MAX = 3500;
-    const capBySize = Math.min(SAFE_MAX / bodyW, SAFE_MAX / bodyH);
-    const sc = Math.min(window.devicePixelRatio || 1, 2, capBySize);
+    const sc = Math.min(window.devicePixelRatio || 1, 2);
 
     const skipIds = new Set(['draw-svg', 'draw-panel', 'mobile-draw-toolbar',
                              'mdt-controls-bar', 'site-nav', 'countdown-overlay', 'draw-toast']);
@@ -296,11 +289,18 @@
 
     let bgCanvas = null;
     try {
-      // Exclude IMG and VIDEO from html-to-image so the SVG stays small enough
-      // for Chrome to render. We draw images on top separately via fetch+blob.
-      const fullCanvas = await htmlToImage.toCanvas(document.body, {
+      // Render only the viewport region (width VW, height VH) by translating
+      // the body up by scrollY. Bounded output means we can use full Retina
+      // pixel ratio without hitting Chrome's foreignObject size limit.
+      bgCanvas = await htmlToImage.toCanvas(document.body, {
         pixelRatio: sc,
+        width: VW,
+        height: VH,
         skipFonts: true,
+        style: {
+          transform: `translateY(-${scrollY}px)`,
+          transformOrigin: 'top left',
+        },
         filter: el => {
           if (el.id && skipIds.has(el.id)) return false;
           if (el.tagName === 'VIDEO' || el.tagName === 'IMG') return false;
@@ -309,12 +309,7 @@
         backgroundColor: getComputedStyle(document.body).backgroundColor || '#fff',
       });
 
-      bgCanvas = document.createElement('canvas');
-      bgCanvas.width  = Math.round(VW * sc);
-      bgCanvas.height = Math.round(VH * sc);
       const bctx = bgCanvas.getContext('2d');
-      const srcY = Math.min(Math.round(scrollY * sc), Math.max(0, fullCanvas.height - bgCanvas.height));
-      bctx.drawImage(fullCanvas, 0, srcY, bgCanvas.width, bgCanvas.height, 0, 0, bgCanvas.width, bgCanvas.height);
 
       // Draw visible <img> elements via fetch+blob (same-origin, no canvas taint)
       const inVP = r => r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < VH && r.right > 0 && r.left < VW;
