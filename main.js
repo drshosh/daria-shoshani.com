@@ -197,7 +197,7 @@
 
     const form = new FormData();
     form.append('key', IMGBB_API_KEY);
-    form.append('image', blob, 'drawing.jpg');
+    form.append('image', blob, 'drawing.png');
     const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form });
     if (!res.ok) throw new Error('ImgBB ' + res.status);
     const json = await res.json();
@@ -278,7 +278,7 @@
 
     const VW = window.innerWidth, VH = window.innerHeight;
     const scrollY = window.scrollY;
-    const sc = Math.min(1, 1200 / Math.max(VW, VH));
+    const sc = Math.min(window.devicePixelRatio || 1, 2);
 
     const skipIds = new Set(['draw-svg', 'draw-panel', 'mobile-draw-toolbar',
                              'mdt-controls-bar', 'site-nav', 'countdown-overlay', 'draw-toast']);
@@ -336,7 +336,7 @@
 
     if (bgCanvas) {
       stampStrokes(bgCanvas, sc);
-      return bgCanvas.toDataURL('image/jpeg', 0.88);
+      return bgCanvas.toDataURL('image/png');
     }
     return strokesOnlyExport();
   };
