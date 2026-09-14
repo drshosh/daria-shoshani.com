@@ -289,45 +289,18 @@
 
     let bgCanvas = null;
     try {
-      // Render only the viewport region (width VW, height VH) by translating
-      // the body up by scrollY. Bounded output means we can use full Retina
-      // pixel ratio without hitting Chrome's foreignObject size limit.
-      bgCanvas = await htmlToImage.toCanvas(document.body, {
-        pixelRatio: sc,
+      // html2canvas paints elements directly to canvas (no SVG foreignObject),
+      // so text renders reliably on iOS. y+height clip to the viewport region.
+      bgCanvas = await html2canvas(document.body, {
+        x: 0,
+        y: scrollY,
         width: VW,
         height: VH,
-        style: {
-          transform: `translateY(-${scrollY}px)`,
-          transformOrigin: 'top left',
-        },
-        filter: el => {
-          if (el.id && skipIds.has(el.id)) return false;
-          if (el.tagName === 'VIDEO' || el.tagName === 'IMG') return false;
-          return true;
-        },
+        scale: sc,
+        useCORS: true,
         backgroundColor: getComputedStyle(document.body).backgroundColor || '#fff',
+        ignoreElements: el => (el.id && skipIds.has(el.id)) || el.tagName === 'VIDEO',
       });
-
-      const bctx = bgCanvas.getContext('2d');
-
-      // Draw visible <img> elements via fetch+blob (same-origin, no canvas taint)
-      const inVP = r => r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < VH && r.right > 0 && r.left < VW;
-      for (const img of document.querySelectorAll('img')) {
-        if ([...skipIds].some(id => img.closest('#' + id))) continue;
-        const r = img.getBoundingClientRect();
-        if (!inVP(r)) continue;
-        try {
-          const resp = await fetch(img.currentSrc || img.src);
-          const blob = await resp.blob();
-          const blobUrl = URL.createObjectURL(blob);
-          await new Promise(res => {
-            const i = new Image();
-            i.onload = () => { bctx.drawImage(i, r.left * sc, r.top * sc, r.width * sc, r.height * sc); URL.revokeObjectURL(blobUrl); res(); };
-            i.onerror = () => { URL.revokeObjectURL(blobUrl); res(); };
-            i.src = blobUrl;
-          });
-        } catch {}
-      }
     } catch (e) {
       console.warn('[draw-export] page capture failed, falling back to strokes only:', e);
       showToast('Capture failed: ' + (e?.message || String(e)), 10000);
