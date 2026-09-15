@@ -2,3 +2,7 @@
 *.dmg
 refrences/
 .claude/
+
+# Scan originals — kept locally, web-sized JPEGs are committed instead
+*.tiff
+*.tif

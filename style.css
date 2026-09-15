@@ -86,14 +86,12 @@ img { display: block; max-width: 100%; }
 
 /* All nav text defaults to dark, flips white over hero */
 .nav-brand,
-.nav-link,
-.nav-dropdown-btn {
+.nav-link {
   color: #111;
 }
 
 #site-nav.over-dark .nav-brand,
-#site-nav.over-dark .nav-link,
-#site-nav.over-dark .nav-dropdown-btn { color: #fff; }
+#site-nav.over-dark .nav-link { color: #fff; }
 
 .nav-brand {
   font-size: 2.6rem;
@@ -122,33 +120,6 @@ img { display: block; max-width: 100%; }
 }
 
 .nav-link:hover { opacity: 0.6; }
-
-/* About dropdown */
-.nav-dropdown-wrap { position: relative; }
-
-.nav-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-top: none;
-  display: none;
-  min-width: 20rem;
-  z-index: 200;
-}
-
-.nav-dropdown-wrap:hover .nav-dropdown { display: block; }
-
-.nav-dropdown a {
-  display: block;
-  padding: 1.1rem 2rem;
-  font-size: 1.2rem;
-  font-weight: 400;
-  color: #555;
-}
-
-.nav-dropdown a:hover { background: #f0f0f0; color: #111; }
 
 /* Draw panel drops from the full-width nav — no local position so #site-nav is the containing block */
 
@@ -672,7 +643,7 @@ section {
   display: grid;
   grid-template-columns: 6.5rem 1fr;
   gap: 2rem;
-  padding: 1.6rem 0;
+  padding: 0.8rem 0;
   align-items: start;
 }
 
@@ -1110,7 +1081,6 @@ button.mobile-nav-link {
   /* ── NAV ── */
   .nav-brand { display: none; }   /* hero-name stays fixed and serves as the brand */
   .nav-link,
-  .nav-dropdown-wrap,
   #draw-section { display: none; }
   .nav-hamburger {
     display: flex;
@@ -1278,7 +1248,7 @@ button.mobile-nav-link {
   .cv-list li {
     grid-template-columns: 4.5rem 1fr;
     gap: 0.5rem;
-    padding: 0.8rem 0;
+    padding: 0.4rem 0;
   }
 
   .cv-year { font-size: 0.8rem; }

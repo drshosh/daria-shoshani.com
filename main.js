@@ -564,14 +564,6 @@
     window.scrollTo({ top: 0, behavior: 'instant' });
   });
 
-  // --- ABOUT BUTTON: scroll to #about ---
-  const aboutBtn = document.getElementById('about-btn');
-  if (aboutBtn) {
-    aboutBtn.addEventListener('click', () => {
-      document.getElementById('about').scrollIntoView({ behavior: 'instant', block: 'start' });
-    });
-  }
-
   // --- SMOOTH SCROLL ---
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', e => {
@@ -859,12 +851,10 @@
 
     const ARCHIVE_IMAGES = [
     "Images/random%20image/01F904CF-3D5E-4202-BB6F-BC02CAC18324.jpg",
-    "Images/random%20image/040644B0-F134-4C9E-8FC9-B4D6EECFDF79.jpg",
     "Images/random%20image/084B03A6-4E59-4113-B6CD-6C59B5A03CD0.jpg",
     "Images/random%20image/0E8EB3B5-420A-47B0-A554-D29165BEAEBF.jpg",
     "Images/random%20image/0RFmovJA.jpg",
     "Images/random%20image/1.jpg",
-    "Images/random%20image/10.jpg",
     "Images/random%20image/10.png",
     "Images/random%20image/1000029999.jpg",
     "Images/random%20image/1000030003.jpg",
@@ -875,7 +865,6 @@
     "Images/random%20image/144440.jpg",
     "Images/random%20image/15.png",
     "Images/random%20image/155555555550%202.jpg",
-    "Images/random%20image/15ABC8E7-1BB5-48E3-B29F-4BF86566CFCE.jpg",
     "Images/random%20image/16.jpg",
     "Images/random%20image/16.png",
     "Images/random%20image/17FB4BAB-A5B3-47B6-B1AF-2E9D5591E7D5.jpg",
@@ -887,8 +876,6 @@
     "Images/random%20image/20240621_105336.jpg",
     "Images/random%20image/217217.JPG",
     "Images/random%20image/220220.JPG",
-    "Images/random%20image/222.JPG",
-    "Images/random%20image/2222.jpg",
     "Images/random%20image/22222.jpg",
     "Images/random%20image/25.jpg",
     "Images/random%20image/2E864A13-C652-43BB-BDEA-5D69941427C2.jpg",
@@ -897,14 +884,12 @@
     "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C1111.png",
     "Images/random%20image/2FA7AF9C-7C97-4872-A7DC-D1CECC65686C2.png",
     "Images/random%20image/2b72d435-98de-4783-ac96-668db4f59f94.jpeg",
-    "Images/random%20image/3.png",
     "Images/random%20image/305013753_5123716904406951_8486950662285550207_n.jpg",
     "Images/random%20image/31A200F3-8D11-4D97-AB2C-2B4031928025.jpg",
     "Images/random%20image/335b6f0d-7e18-401a-a568-441303e61b7b.jpg",
     "Images/random%20image/34.jpg",
     "Images/random%20image/371E1BCB-F8B8-4995-BFCA-CA700D15CA4B.JPG",
     "Images/random%20image/3FFED338-D726-402E-A40F-551D65127C01.jpg",
-    "Images/random%20image/4%202.png",
     "Images/random%20image/4.jpeg",
     "Images/random%20image/4.jpg",
     "Images/random%20image/4306535D-AE31-462F-975F-05E625B5FB95.jpg",
@@ -912,7 +897,6 @@
     "Images/random%20image/445AF8F4-46FF-4CEE-B329-A52EB3DD38FB.jpg",
     "Images/random%20image/471D62E3-3ECF-4A3E-993F-29CE50746D36_Original.jpg",
     "Images/random%20image/473229339_910826921135776_4401412123490169757_n.jpg",
-    "Images/random%20image/5.jpg",
     "Images/random%20image/5.png",
     "Images/random%20image/5DDC52E8-DFF2-48A3-B3AE-59B2A8CD34DB.jpg",
     "Images/random%20image/5EE85452-15D9-4A9A-AC56-F596EF28C09A.jpg",
@@ -971,9 +955,6 @@
     "Images/random%20image/IMG_0121.jpg",
     "Images/random%20image/IMG_0123.JPG",
     "Images/random%20image/IMG_0154.JPG",
-    "Images/random%20image/IMG_0257.jpg",
-    "Images/random%20image/IMG_0258.JPG",
-    "Images/random%20image/IMG_0298.JPG",
     "Images/random%20image/IMG_0300.JPG",
     "Images/random%20image/IMG_0310.jpg",
     "Images/random%20image/IMG_0316.jpg",
@@ -1025,8 +1006,6 @@
     "Images/random%20image/IMG_3332.jpg",
     "Images/random%20image/IMG_3854.jpg",
     "Images/random%20image/IMG_4064.jpg",
-    "Images/random%20image/IMG_4089.jpg",
-    "Images/random%20image/IMG_4095.jpg",
     "Images/random%20image/IMG_4104.jpg",
     "Images/random%20image/IMG_4503.jpeg",
     "Images/random%20image/IMG_5252.jpg",
@@ -1038,7 +1017,6 @@
     "Images/random%20image/IMG_6036.jpg",
     "Images/random%20image/IMG_6037.jpg",
     "Images/random%20image/IMG_6038.jpg",
-    "Images/random%20image/IMG_6200.jpg",
     "Images/random%20image/IMG_6548.JPG",
     "Images/random%20image/IMG_6605%20%282%29.JPG",
     "Images/random%20image/IMG_6611.JPG",
@@ -1103,12 +1081,25 @@
     "Images/random%20image/daria_centanni_32.jpg",
     "Images/random%20image/edited.png",
     "Images/random%20image/family.jpg",
+    "Images/random%20image/final_french_web.jpg",
     "Images/random%20image/image_67193345.JPG",
     "Images/random%20image/image_67239169.JPG.jpg",
     "Images/random%20image/kiss%20kiss%20back.png",
     "Images/random%20image/kiss%20kiss%20front.png",
     "Images/random%20image/longtimenosee_announcement-wasserwasser.jpg",
     "Images/random%20image/paperpaintings-2.jpg",
+    "Images/random%20image/prachot.gif",
+    "Images/random%20image/scan-01.jpg",
+    "Images/random%20image/scan-02.jpg",
+    "Images/random%20image/scan-03.jpg",
+    "Images/random%20image/scan-04.jpg",
+    "Images/random%20image/scan-05.jpg",
+    "Images/random%20image/scan-06.jpg",
+    "Images/random%20image/scan-07.jpg",
+    "Images/random%20image/scan-08.jpg",
+    "Images/random%20image/scan-09.jpg",
+    "Images/random%20image/scan-10.jpg",
+    "Images/random%20image/scan-11.jpg",
     "Images/random%20image/screenshot.png",
     "Images/random%20image/screenshot2.png",
     "Images/random%20image/talented%20back.png",

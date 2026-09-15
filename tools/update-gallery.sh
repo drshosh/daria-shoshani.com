@@ -49,7 +49,7 @@ def replace_block(html, anchor_title, files):
         raise RuntimeError(f"Expected exactly 1 match for '{anchor_title}', got {count}")
     return new_html
 
-html = replace_block(html, "Drawings, Prints, Textile and Paintings", paint)
+html = replace_block(html, "Drawings, Prints, Textiles and Paintings", paint)
 html = replace_block(html, "Sculptures", sculpt)
 
 # Replace the cover <img> src for paintings and drawings
